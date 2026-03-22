@@ -1,0 +1,91 @@
+chart_id,chart_type,measures,png_path,svg_path
+001_simple_bar,simple_bar,Received food stamps in the past 12 months among adults,charts/png/001_simple_bar.png,charts/svg/001_simple_bar.svg
+002_grouped_bar,grouped_bar,Frequent physical distress among adults | Stroke among adults,charts/png/002_grouped_bar.png,charts/svg/002_grouped_bar.svg
+003_stacked_bar,stacked_bar,Any disability among adults,charts/png/003_stacked_bar.png,charts/svg/003_stacked_bar.svg
+004_stacked_bar,stacked_bar,Current lack of health insurance among adults aged 18-64 years,charts/png/004_stacked_bar.png,charts/svg/004_stacked_bar.svg
+005_simple_bar,simple_bar,Cognitive disability among adults,charts/png/005_simple_bar.png,charts/svg/005_simple_bar.svg
+006_stacked_bar,stacked_bar,Cholesterol screening among adults,charts/png/006_stacked_bar.png,charts/svg/006_stacked_bar.svg
+007_grouped_bar,grouped_bar,Diagnosed diabetes among adults | Self-care disability among adults,charts/png/007_grouped_bar.png,charts/svg/007_grouped_bar.svg
+008_simple_bar,simple_bar,Utility services shut-off threat in the past 12 months among adults,charts/png/008_simple_bar.png,charts/svg/008_simple_bar.svg
+009_grouped_bar,grouped_bar,Visited dentist or dental clinic in the past year among adults | Lack of social and emotional support among adults,charts/png/009_grouped_bar.png,charts/svg/009_grouped_bar.svg
+010_simple_bar,simple_bar,Short sleep duration among adults,charts/png/010_simple_bar.png,charts/svg/010_simple_bar.svg
+011_stacked_bar,stacked_bar,Arthritis among adults,charts/png/011_stacked_bar.png,charts/svg/011_stacked_bar.svg
+012_simple_bar,simple_bar,Housing insecurity in the past 12 months among adults,charts/png/012_simple_bar.png,charts/svg/012_simple_bar.svg
+013_stacked_bar,stacked_bar,Coronary heart disease among adults,charts/png/013_stacked_bar.png,charts/svg/013_stacked_bar.svg
+014_grouped_bar,grouped_bar,Independent living disability among adults | Obesity among adults,charts/png/014_grouped_bar.png,charts/svg/014_grouped_bar.svg
+015_stacked_bar,stacked_bar,Visited dentist or dental clinic in the past year among adults,charts/png/015_stacked_bar.png,charts/svg/015_stacked_bar.svg
+016_stacked_bar,stacked_bar,Obesity among adults,charts/png/016_stacked_bar.png,charts/svg/016_stacked_bar.svg
+017_simple_bar,simple_bar,Binge drinking among adults,charts/png/017_simple_bar.png,charts/svg/017_simple_bar.svg
+018_simple_bar,simple_bar,Cancer (non-skin) or melanoma among adults,charts/png/018_simple_bar.png,charts/svg/018_simple_bar.svg
+019_simple_bar,simple_bar,Current asthma among adults,charts/png/019_simple_bar.png,charts/svg/019_simple_bar.svg
+020_stacked_bar,stacked_bar,Vision disability among adults,charts/png/020_stacked_bar.png,charts/svg/020_stacked_bar.svg
+021_grouped_bar,grouped_bar,Chronic obstructive pulmonary disease among adults | Any disability among adults,charts/png/021_grouped_bar.png,charts/svg/021_grouped_bar.svg
+022_grouped_bar,grouped_bar,Coronary heart disease among adults | Independent living disability among adults,charts/png/022_grouped_bar.png,charts/svg/022_grouped_bar.svg
+023_simple_bar,simple_bar,Cholesterol screening among adults,charts/png/023_simple_bar.png,charts/svg/023_simple_bar.svg
+024_simple_bar,simple_bar,Depression among adults,charts/png/024_simple_bar.png,charts/svg/024_simple_bar.svg
+025_grouped_bar,grouped_bar,Chronic obstructive pulmonary disease among adults | Lack of social and emotional support among adults,charts/png/025_grouped_bar.png,charts/svg/025_grouped_bar.svg
+026_simple_bar,simple_bar,Stroke among adults,charts/png/026_simple_bar.png,charts/svg/026_simple_bar.svg
+027_grouped_bar,grouped_bar,Arthritis among adults | No leisure-time physical activity among adults,charts/png/027_grouped_bar.png,charts/svg/027_grouped_bar.svg
+028_stacked_bar,stacked_bar,Stroke among adults,charts/png/028_stacked_bar.png,charts/svg/028_stacked_bar.svg
+029_grouped_bar,grouped_bar,Mammography use among women aged 50-74 years | Utility services shut-off threat in the past 12 months among adults,charts/png/029_grouped_bar.png,charts/svg/029_grouped_bar.svg
+030_stacked_bar,stacked_bar,Cholesterol screening among adults,charts/png/030_stacked_bar.png,charts/svg/030_stacked_bar.svg
+031_grouped_bar,grouped_bar,Current lack of health insurance among adults aged 18-64 years | Housing insecurity in the past 12 months among adults,charts/png/031_grouped_bar.png,charts/svg/031_grouped_bar.svg
+032_grouped_bar,grouped_bar,Fair or poor self-rated health status among adults | Loneliness among adults,charts/png/032_grouped_bar.png,charts/svg/032_grouped_bar.svg
+033_grouped_bar,grouped_bar,Lack of reliable transportation in the past 12 months among adults | Mobility disability among adults,charts/png/033_grouped_bar.png,charts/svg/033_grouped_bar.svg
+034_stacked_bar,stacked_bar,Depression among adults,charts/png/034_stacked_bar.png,charts/svg/034_stacked_bar.svg
+035_simple_bar,simple_bar,Loneliness among adults,charts/png/035_simple_bar.png,charts/svg/035_simple_bar.svg
+036_stacked_bar,stacked_bar,Binge drinking among adults,charts/png/036_stacked_bar.png,charts/svg/036_stacked_bar.svg
+037_grouped_bar,grouped_bar,Cancer (non-skin) or melanoma among adults | Food insecurity in the past 12 months among adults,charts/png/037_grouped_bar.png,charts/svg/037_grouped_bar.svg
+038_grouped_bar,grouped_bar,Lack of reliable transportation in the past 12 months among adults | Loneliness among adults,charts/png/038_grouped_bar.png,charts/svg/038_grouped_bar.svg
+039_stacked_bar,stacked_bar,Taking medicine to control high blood pressure among adults with high blood pressure,charts/png/039_stacked_bar.png,charts/svg/039_stacked_bar.svg
+040_stacked_bar,stacked_bar,Chronic obstructive pulmonary disease among adults,charts/png/040_stacked_bar.png,charts/svg/040_stacked_bar.svg
+041_simple_bar,simple_bar,Colorectal cancer screening among adults aged 45–75 years,charts/png/041_simple_bar.png,charts/svg/041_simple_bar.svg
+042_simple_bar,simple_bar,Stroke among adults,charts/png/042_simple_bar.png,charts/svg/042_simple_bar.svg
+043_simple_bar,simple_bar,Cancer (non-skin) or melanoma among adults,charts/png/043_simple_bar.png,charts/svg/043_simple_bar.svg
+044_grouped_bar,grouped_bar,High cholesterol among adults who have ever been screened | Vision disability among adults,charts/png/044_grouped_bar.png,charts/svg/044_grouped_bar.svg
+045_simple_bar,simple_bar,Mammography use among women aged 50-74 years,charts/png/045_simple_bar.png,charts/svg/045_simple_bar.svg
+046_stacked_bar,stacked_bar,Current lack of health insurance among adults aged 18-64 years,charts/png/046_stacked_bar.png,charts/svg/046_stacked_bar.svg
+047_stacked_bar,stacked_bar,Current cigarette smoking among adults,charts/png/047_stacked_bar.png,charts/svg/047_stacked_bar.svg
+048_stacked_bar,stacked_bar,Utility services shut-off threat in the past 12 months among adults,charts/png/048_stacked_bar.png,charts/svg/048_stacked_bar.svg
+049_simple_bar,simple_bar,Mammography use among women aged 50-74 years,charts/png/049_simple_bar.png,charts/svg/049_simple_bar.svg
+050_stacked_bar,stacked_bar,Diagnosed diabetes among adults,charts/png/050_stacked_bar.png,charts/svg/050_stacked_bar.svg
+051_simple_bar,simple_bar,Visited dentist or dental clinic in the past year among adults,charts/png/051_simple_bar.png,charts/svg/051_simple_bar.svg
+052_simple_bar,simple_bar,Independent living disability among adults,charts/png/052_simple_bar.png,charts/svg/052_simple_bar.svg
+053_grouped_bar,grouped_bar,Taking medicine to control high blood pressure among adults with high blood pressure | Lack of social and emotional support among adults,charts/png/053_grouped_bar.png,charts/svg/053_grouped_bar.svg
+054_simple_bar,simple_bar,Colorectal cancer screening among adults aged 45–75 years,charts/png/054_simple_bar.png,charts/svg/054_simple_bar.svg
+055_simple_bar,simple_bar,Received food stamps in the past 12 months among adults,charts/png/055_simple_bar.png,charts/svg/055_simple_bar.svg
+056_grouped_bar,grouped_bar,Lack of social and emotional support among adults | Obesity among adults,charts/png/056_grouped_bar.png,charts/svg/056_grouped_bar.svg
+057_simple_bar,simple_bar,Food insecurity in the past 12 months among adults,charts/png/057_simple_bar.png,charts/svg/057_simple_bar.svg
+058_simple_bar,simple_bar,Current lack of health insurance among adults aged 18-64 years,charts/png/058_simple_bar.png,charts/svg/058_simple_bar.svg
+059_stacked_bar,stacked_bar,Visited dentist or dental clinic in the past year among adults,charts/png/059_stacked_bar.png,charts/svg/059_stacked_bar.svg
+060_simple_bar,simple_bar,Binge drinking among adults,charts/png/060_simple_bar.png,charts/svg/060_simple_bar.svg
+061_simple_bar,simple_bar,Hearing disability among adults,charts/png/061_simple_bar.png,charts/svg/061_simple_bar.svg
+062_simple_bar,simple_bar,Chronic obstructive pulmonary disease among adults,charts/png/062_simple_bar.png,charts/svg/062_simple_bar.svg
+063_stacked_bar,stacked_bar,Colorectal cancer screening among adults aged 45–75 years,charts/png/063_stacked_bar.png,charts/svg/063_stacked_bar.svg
+064_grouped_bar,grouped_bar,Chronic obstructive pulmonary disease among adults | Diagnosed diabetes among adults,charts/png/064_grouped_bar.png,charts/svg/064_grouped_bar.svg
+065_simple_bar,simple_bar,Colorectal cancer screening among adults aged 45–75 years,charts/png/065_simple_bar.png,charts/svg/065_simple_bar.svg
+066_simple_bar,simple_bar,Hearing disability among adults,charts/png/066_simple_bar.png,charts/svg/066_simple_bar.svg
+067_simple_bar,simple_bar,Stroke among adults,charts/png/067_simple_bar.png,charts/svg/067_simple_bar.svg
+068_grouped_bar,grouped_bar,Depression among adults | Any disability among adults,charts/png/068_grouped_bar.png,charts/svg/068_grouped_bar.svg
+069_stacked_bar,stacked_bar,Cancer (non-skin) or melanoma among adults,charts/png/069_stacked_bar.png,charts/svg/069_stacked_bar.svg
+070_stacked_bar,stacked_bar,No leisure-time physical activity among adults,charts/png/070_stacked_bar.png,charts/svg/070_stacked_bar.svg
+071_grouped_bar,grouped_bar,Visits to doctor for routine checkup within the past year among adults | Lack of reliable transportation in the past 12 months among adults,charts/png/071_grouped_bar.png,charts/svg/071_grouped_bar.svg
+072_stacked_bar,stacked_bar,Chronic obstructive pulmonary disease among adults,charts/png/072_stacked_bar.png,charts/svg/072_stacked_bar.svg
+073_simple_bar,simple_bar,Lack of social and emotional support among adults,charts/png/073_simple_bar.png,charts/svg/073_simple_bar.svg
+074_grouped_bar,grouped_bar,Chronic obstructive pulmonary disease among adults | Visited dentist or dental clinic in the past year among adults,charts/png/074_grouped_bar.png,charts/svg/074_grouped_bar.svg
+075_grouped_bar,grouped_bar,Self-care disability among adults | Short sleep duration among adults,charts/png/075_grouped_bar.png,charts/svg/075_grouped_bar.svg
+076_grouped_bar,grouped_bar,Frequent mental distress among adults | Stroke among adults,charts/png/076_grouped_bar.png,charts/svg/076_grouped_bar.svg
+077_stacked_bar,stacked_bar,Received food stamps in the past 12 months among adults,charts/png/077_stacked_bar.png,charts/svg/077_stacked_bar.svg
+078_stacked_bar,stacked_bar,Depression among adults,charts/png/078_stacked_bar.png,charts/svg/078_stacked_bar.svg
+079_simple_bar,simple_bar,Cancer (non-skin) or melanoma among adults,charts/png/079_simple_bar.png,charts/svg/079_simple_bar.svg
+080_stacked_bar,stacked_bar,Binge drinking among adults,charts/png/080_stacked_bar.png,charts/svg/080_stacked_bar.svg
+081_stacked_bar,stacked_bar,Diagnosed diabetes among adults,charts/png/081_stacked_bar.png,charts/svg/081_stacked_bar.svg
+082_simple_bar,simple_bar,Depression among adults,charts/png/082_simple_bar.png,charts/svg/082_simple_bar.svg
+083_grouped_bar,grouped_bar,Current cigarette smoking among adults | Mammography use among women aged 50-74 years,charts/png/083_grouped_bar.png,charts/svg/083_grouped_bar.svg
+084_simple_bar,simple_bar,Current lack of health insurance among adults aged 18-64 years,charts/png/084_simple_bar.png,charts/svg/084_simple_bar.svg
+085_simple_bar,simple_bar,Lack of reliable transportation in the past 12 months among adults,charts/png/085_simple_bar.png,charts/svg/085_simple_bar.svg
+086_grouped_bar,grouped_bar,Lack of social and emotional support among adults | Received food stamps in the past 12 months among adults,charts/png/086_grouped_bar.png,charts/svg/086_grouped_bar.svg
+087_grouped_bar,grouped_bar,Self-care disability among adults | Short sleep duration among adults,charts/png/087_grouped_bar.png,charts/svg/087_grouped_bar.svg
+088_simple_bar,simple_bar,Stroke among adults,charts/png/088_simple_bar.png,charts/svg/088_simple_bar.svg
+089_grouped_bar,grouped_bar,Arthritis among adults | Any disability among adults,charts/png/089_grouped_bar.png,charts/svg/089_grouped_bar.svg
+090_simple_bar,simple_bar,All teeth lost among adults aged >=65 years,charts/png/090_simple_bar.png,charts/svg/090_simple_bar.svg
