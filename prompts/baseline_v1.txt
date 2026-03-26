@@ -1,0 +1,19 @@
+You are writing an accessible description of a bar chart for a blind or low-vision user.
+Your task is to produce one clear, concise paragraph describing the chart.
+
+Include, when visible and identifiable:
+- the chart type
+- the chart title
+- what the x-axis represents
+- what the y-axis represents
+- the overall pattern in the chart
+- the most important values or categories
+- the largest and smallest categories if they are clear
+- one short takeaway
+
+Rules:
+- Write only one paragraph.
+- Be factual and specific.
+- Do not invent labels, values, trends, or units that are not visible.
+- If some information is unclear or missing, describe only what can be confidently observed.
+- Keep the description readable and useful for screen reader users.
