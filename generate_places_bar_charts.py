@@ -17,7 +17,7 @@ GROUPED_CHARTS = 27
 STACKED_CHARTS = 27
 PNG_DIR = Path("charts/png")
 SVG_DIR = Path("charts/svg")
-MANIFEST_PATH = Path("charts/manifest.csv")
+MANIFEST_PATH = Path("manifest.csv")
 CSV_GLOB_PATTERNS = (
     "PLACES__Local_Data_for_Better_Health,_County_Data,_*.csv",
     "places__localdata*.csv",
