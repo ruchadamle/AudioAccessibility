@@ -1,4 +1,5 @@
 import argparse
+import ast
 import json
 import re
 from pathlib import Path
@@ -219,20 +220,122 @@ def strip_json_fences(text: str) -> str:
     return text.strip()
 
 
+def clean_sentence(text: str) -> str:
+    text = str(text).strip()
+    text = re.sub(r"\s+", " ", text)
+    return text.rstrip(". ")
+
+
+def sentence_key(text: str) -> str:
+    text = clean_sentence(text).lower()
+    text = re.sub(r"[^a-z0-9\s]", "", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def dedupe_and_limit(items: list, limit: int) -> list[str]:
+    seen = set()
+    result = []
+    for item in items or []:
+        item = clean_sentence(item)
+        if not item:
+            continue
+        key = sentence_key(item)
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(f"{item}.")
+        if len(result) >= limit:
+            break
+    return result
+
+
+def normalize_caption_json(data: dict) -> dict:
+    axes = data.get("axes", {}) or {}
+    normalized = {
+        "chart_type": clean_sentence(data.get("chart_type", "")),
+        "title": clean_sentence(data.get("title", "")),
+        "axes": {
+            "x_axis_title": clean_sentence(axes.get("x_axis_title", "")),
+            "y_axis_title": clean_sentence(axes.get("y_axis_title", "")),
+            "y_axis_unit": clean_sentence(axes.get("y_axis_unit", "")),
+        },
+        "key_values": dedupe_and_limit(data.get("key_values", []), 3),
+        "comparisons": dedupe_and_limit(data.get("comparisons", []), 3),
+        "trends": dedupe_and_limit(data.get("trends", []), 2),
+        "takeaway": clean_sentence(data.get("takeaway", "")),
+    }
+    if normalized["takeaway"]:
+        normalized["takeaway"] += "."
+    return normalized
+
+
+def extract_string_field(text: str, field_name: str) -> str:
+    match = re.search(rf'"{field_name}"\s*:\s*"([^"]*)"', text, flags=re.DOTALL)
+    return clean_sentence(match.group(1)) if match else ""
+
+
+def extract_array_field(text: str, field_name: str) -> list[str]:
+    match = re.search(rf'"{field_name}"\s*:\s*(\[[\s\S]*?\])', text, flags=re.DOTALL)
+    if not match:
+        return []
+    try:
+        parsed = ast.literal_eval(match.group(1))
+    except (SyntaxError, ValueError):
+        return []
+    if not isinstance(parsed, list):
+        return []
+    return [clean_sentence(item) for item in parsed if clean_sentence(item)]
+
+
+def salvage_partial_json(text: str) -> dict | None:
+    chart_type = extract_string_field(text, "chart_type")
+    title = extract_string_field(text, "title")
+    x_axis = extract_string_field(text, "x_axis_title")
+    y_axis = extract_string_field(text, "y_axis_title")
+    y_unit = extract_string_field(text, "y_axis_unit")
+    key_values = extract_array_field(text, "key_values")
+    comparisons = extract_array_field(text, "comparisons")
+    trends = extract_array_field(text, "trends")
+    takeaway = extract_string_field(text, "takeaway")
+
+    if not any([chart_type, title, x_axis, y_axis, y_unit, key_values, comparisons, trends, takeaway]):
+        return None
+
+    return normalize_caption_json(
+        {
+            "chart_type": chart_type,
+            "title": title,
+            "axes": {
+                "x_axis_title": x_axis,
+                "y_axis_title": y_axis,
+                "y_axis_unit": y_unit,
+            },
+            "key_values": key_values,
+            "comparisons": comparisons,
+            "trends": trends,
+            "takeaway": takeaway,
+        }
+    )
+
+
 def try_parse_json(text: str):
     cleaned = strip_json_fences(text)
 
     try:
-        return json.loads(cleaned), True
+        return normalize_caption_json(json.loads(cleaned)), True
     except json.JSONDecodeError:
         start = cleaned.find("{")
         end = cleaned.rfind("}")
         if start != -1 and end != -1 and start < end:
             candidate = cleaned[start:end + 1]
             try:
-                return json.loads(candidate), True
+                return normalize_caption_json(json.loads(candidate)), True
             except json.JSONDecodeError:
                 pass
+
+        salvaged = salvage_partial_json(cleaned)
+        if salvaged is not None:
+            return salvaged, False
 
         return {
             "error": "invalid_json",
