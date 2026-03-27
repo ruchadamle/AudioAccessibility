@@ -12,158 +12,76 @@ def clean_sentence(text: str) -> str:
     text = str(text).strip()
     if not text:
         return ""
-    text = text.rstrip(".")
+    text = text.rstrip(". ")
     return text
 
 
-def join_phrases(items: list[str]) -> str:
-    items = [clean_sentence(x) for x in items if str(x).strip()]
-    if not items:
-        return ""
-    if len(items) == 1:
-        return items[0]
-    if len(items) == 2:
-        return f"{items[0]} and {items[1]}"
-    return ", ".join(items[:-1]) + f", and {items[-1]}"
+def lower_first_if_needed(text: str) -> str:
+    text = text.strip()
+    if not text:
+        return text
+    if text[0].isupper():
+        return text[0].lower() + text[1:]
+    return text
 
 
-def extract_chart_fields(data: dict) -> dict:
-    chart_type = data.get("chart_type", "").strip()
-    title = data.get("title", "").strip()
-    axes = data.get("axes", {}) or {}
-    return {
-        "chart_type": chart_type,
-        "title": title,
-        "x_axis": axes.get("x_axis_title", "").strip(),
-        "y_axis": axes.get("y_axis_title", "").strip(),
-        "unit": axes.get("y_axis_unit", "").strip(),
-        "key_values": data.get("key_values", []) or [],
-        "comparisons": data.get("comparisons", []) or [],
-        "trends": data.get("trends", []) or [],
-        "takeaway": data.get("takeaway", "").strip(),
-    }
+def merge_sentences(parts: list[str]) -> str:
+    cleaned = []
+    for part in parts:
+        part = clean_sentence(part)
+        if part:
+            cleaned.append(part + ".")
+    return " ".join(cleaned)
 
 
-def build_axis_bits(x_axis: str, y_axis: str, unit: str, *, style: str) -> list[str]:
-    axis_bits = []
-    if x_axis:
-        if style == "concise":
-            axis_bits.append(f"the x-axis represents {x_axis}")
-        else:
-            axis_bits.append(f"the x-axis shows {x_axis}")
-    if y_axis and unit:
-        if style == "concise":
-            axis_bits.append(f"the y-axis represents {y_axis} measured in {unit}")
-        else:
-            axis_bits.append(f"the y-axis shows {y_axis} in {unit}")
-    elif y_axis:
-        if style == "concise":
-            axis_bits.append(f"the y-axis represents {y_axis}")
-        else:
-            axis_bits.append(f"the y-axis shows {y_axis}")
-    return axis_bits
-
-
-def render_concise(data: dict) -> str:
-    fields = extract_chart_fields(data)
-    chart_type = fields["chart_type"]
-    title = fields["title"]
-    x_axis = fields["x_axis"]
-    y_axis = fields["y_axis"]
-    unit = fields["unit"]
-    key_values = fields["key_values"]
-    comparisons = fields["comparisons"]
-    trends = fields["trends"]
-    takeaway = fields["takeaway"]
+def render_natural(data: dict) -> str:
+    chart_type = clean_sentence(data.get("chart_type", ""))
+    title = clean_sentence(data.get("title", ""))
+    key_values = data.get("key_values", []) or []
+    comparisons = data.get("comparisons", []) or []
+    trends = data.get("trends", []) or []
+    takeaway = clean_sentence(data.get("takeaway", ""))
 
     parts = []
 
-    intro_bits = []
-    if chart_type:
-        intro_bits.append(f"This {chart_type}")
-    else:
-        intro_bits.append("This chart")
-
-    if title:
-        intro_bits.append(f'shows "{title}"')
-    else:
-        intro_bits.append("shows the displayed data")
-
-    parts.append(" ".join(intro_bits) + ".")
-
-    axis_bits = build_axis_bits(x_axis, y_axis, unit, style="concise")
-    if axis_bits:
-        parts.append(" ".join(["In this chart,", join_phrases(axis_bits) + "."]))
-
-    if key_values:
-        parts.append("Key values include " + join_phrases(key_values) + ".")
-
-    if comparisons:
-        parts.append("Notable comparisons include " + join_phrases(comparisons) + ".")
-
-    if trends:
-        parts.append("The overall pattern is that " + join_phrases(trends) + ".")
-
-    if takeaway:
-        parts.append("Overall, " + clean_sentence(takeaway) + ".")
-
-    return " ".join(parts)
-
-
-def render_detailed(data: dict) -> str:
-    fields = extract_chart_fields(data)
-    chart_type = fields["chart_type"]
-    title = fields["title"]
-    x_axis = fields["x_axis"]
-    y_axis = fields["y_axis"]
-    unit = fields["unit"]
-    key_values = fields["key_values"]
-    comparisons = fields["comparisons"]
-    trends = fields["trends"]
-    takeaway = fields["takeaway"]
-
-    sentences = []
-
     if chart_type and title:
-        sentences.append(f'This {chart_type} is titled "{title}".')
+        parts.append(f'This {chart_type} shows "{lower_first_if_needed(title)}"')
     elif chart_type:
-        sentences.append(f"This is a {chart_type}.")
+        parts.append(f"This {chart_type} presents the data")
     elif title:
-        sentences.append(f'The chart is titled "{title}".')
+        parts.append(f'This chart shows "{lower_first_if_needed(title)}"')
     else:
-        sentences.append("This chart presents the displayed data.")
+        parts.append("This chart presents the data")
 
-    axis_parts = build_axis_bits(x_axis, y_axis, unit, style="detailed")
-    if axis_parts:
-        sentences.append("The chart is organized so that " + join_phrases(axis_parts) + ".")
+    body_parts = []
 
     if key_values:
-        sentences.append("Important values include " + join_phrases(key_values) + ".")
+        body_parts.extend([clean_sentence(x) for x in key_values if clean_sentence(x)])
 
     if comparisons:
-        sentences.append("The chart also shows that " + join_phrases(comparisons) + ".")
+        body_parts.extend([clean_sentence(x) for x in comparisons if clean_sentence(x)])
 
     if trends:
-        sentences.append("A visible overall pattern is that " + join_phrases(trends) + ".")
+        body_parts.extend([clean_sentence(x) for x in trends if clean_sentence(x)])
+
+    if body_parts:
+        parts.append(" ".join(body_parts))
 
     if takeaway:
-        sentences.append("The main takeaway is that " + clean_sentence(takeaway) + ".")
+        parts.append(takeaway)
 
-    return " ".join(sentences)
+    return merge_sentences(parts)
 
 
-def render_file(input_path: Path, concise_out: Path, detailed_out: Path) -> None:
+def render_file(input_path: Path, output_path: Path) -> None:
     data = load_json(input_path)
 
     if "error" in data:
-        concise_text = f"Could not render this file because the JSON output was invalid. Raw output: {data.get('raw_output', '')}"
-        detailed_text = concise_text
+        text = f"Could not render this file because the JSON output was invalid. Raw output: {data.get('raw_output', '')}"
     else:
-        concise_text = render_concise(data)
-        detailed_text = render_detailed(data)
+        text = render_natural(data)
 
-    concise_out.write_text(concise_text, encoding="utf-8")
-    detailed_out.write_text(detailed_text, encoding="utf-8")
+    output_path.write_text(text, encoding="utf-8")
 
 
 def main():
@@ -184,18 +102,13 @@ def main():
 
     input_dir = Path(args.input_dir)
     output_dir = Path(args.output_dir)
-    concise_dir = output_dir / "concise"
-    detailed_dir = output_dir / "detailed"
-
-    concise_dir.mkdir(parents=True, exist_ok=True)
-    detailed_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     json_files = sorted(input_dir.glob("*.json"))
 
     for json_file in json_files:
-        concise_out = concise_dir / f"{json_file.stem}.txt"
-        detailed_out = detailed_dir / f"{json_file.stem}.txt"
-        render_file(json_file, concise_out, detailed_out)
+        output_path = output_dir / f"{json_file.stem}.txt"
+        render_file(json_file, output_path)
 
     print(f"Rendered {len(json_files)} files to {output_dir}")
 

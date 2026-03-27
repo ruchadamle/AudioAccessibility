@@ -4,6 +4,7 @@ Output only raw JSON.
 Do not wrap the JSON in Markdown.
 Do not use code fences.
 Do not include any explanation before or after the JSON.
+Write key_values and comparisons so they can be read directly as natural sentences.
 
 Return valid JSON matching this exact schema:
 
