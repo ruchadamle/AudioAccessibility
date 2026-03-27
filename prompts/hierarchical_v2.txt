@@ -1,11 +1,11 @@
 You are generating a structured accessibility description of a bar chart for a blind or low-vision user.
 
-Return ONLY valid JSON.
-Do not include Markdown.
-Do not include code fences.
+Output only raw JSON.
+Do not wrap the JSON in Markdown.
+Do not use code fences.
 Do not include any explanation before or after the JSON.
 
-Use this exact schema:
+Return valid JSON matching this exact schema:
 
 {
   "chart_type": "",
@@ -22,24 +22,26 @@ Use this exact schema:
 }
 
 Field requirements:
-- "chart_type": identify the chart type, such as "simple bar chart", "grouped bar chart", or "stacked bar chart".
+- "chart_type": use natural labels such as "simple bar chart", "grouped bar chart", or "stacked bar chart".
 - "title": the chart title if visible, otherwise use an empty string.
 - "axes.x_axis_title": the x-axis title if visible, otherwise use an empty string.
 - "axes.y_axis_title": the y-axis title if visible, otherwise use an empty string.
-- "axes.y_axis_unit": the y-axis unit if visible, such as "percent", "percentage", "dollars", or another unit. If not visible, use an empty string.
-- "key_values": a list of short factual strings with the most important values or categories. Include the largest category and the smallest category if they are clear. Include one additional notable value when possible.
-- "comparisons": a list of short factual comparison statements, such as which category is larger or whether one value is about twice another. Only include comparisons that are clearly supported by the chart.
-- "trends": a list of short factual trend statements only when a meaningful overall pattern is visible. If no clear trend exists, return an empty list.
-- "takeaway": one short sentence summarizing the main message of the chart.
+- "axes.y_axis_unit": the y-axis unit if clearly visible, otherwise use an empty string.
+- "key_values": include short factual statements with useful value detail. Prefer specific values or approximate numeric values when visible. Always include:
+  - the largest category with its approximate value if visible
+  - the smallest category with its approximate value if visible
+  - one additional notable value, range, or summary statement
+- "comparisons": include short factual comparison statements using the same level of specificity as the key values.
+- "trends": include only if a meaningful overall pattern exists. If there is no clear trend, return an empty list.
+- "takeaway": one short sentence summarizing the main message.
 
 Rules:
-- Use empty strings or empty arrays when information is unavailable.
-- Be factual and concise.
-- Do not hallucinate missing values, labels, or trends.
-- Do not describe anything outside the chart.
+- Be factual, concise, and specific.
+- Prefer approximate numeric values when exact values are not clearly labeled.
+- Do not hallucinate missing labels, values, units, or trends.
+- If values are visible, use them instead of vague wording.
 - Output must be valid JSON only.
 
----
 Example 1:
 Chart ID: 001_simple_bar
 Chart type: simple_bar
@@ -55,9 +57,9 @@ Output:
     "y_axis_unit": ""
   },
   "key_values": [
-    "East Carroll, LA has the highest value at approximately 46",
+    "East Carroll, LA has the highest value at approximately 47",
     "Perry, AL has the lowest value at approximately 38",
-    "Most counties fall within a narrow range between about 38 and 42"
+    "Most counties fall within a narrow range between about 38 and 43"
   ],
   "comparisons": [
     "East Carroll, LA is noticeably higher than all other counties",
@@ -70,9 +72,9 @@ Output:
 }
 
 Example 2:
-Chart ID: 001_grouped_bar
+Chart ID: 002_grouped_bar
 Chart type: grouped_bar
-Measure: Frequent physical distress among adults vs Stroke among adults
+Measures: Frequent physical distress among adults | Stroke among adults
 
 Output:
 {
@@ -84,14 +86,14 @@ Output:
     "y_axis_unit": ""
   },
   "key_values": [
-    "Oglala Lakota, SD has the highest frequent physical distress among adults at approximately 27",
-    "East Carroll, LA has the lowest frequent physical distress at approximately 21",
-    "Stroke among adults has relatively similar values across counties, ranging from around 6 to 7"
+    "Oglala Lakota, SD has the highest frequent physical distress at approximately 23",
+    "East Carroll, LA has the lowest frequent physical distress at approximately 20",
+    "Stroke values are much lower overall, generally between about 5.5 and 7"
   ],
   "comparisons": [
     "Frequent physical distress is consistently much higher than stroke across all counties",
     "Oglala Lakota, SD has both one of the highest distress and stroke values",
-    "Hancock, TN and Kusilvak, AK have among the lowest stroke values, with very similar levels."
+    "Kusilvak, AK has among the lowest stroke values, with very similar levels to Hancock, TN"
   ],
   "trends": [],
   "takeaway": "Frequent physical distress is substantially higher than stroke in all counties, with relatively small variation within each measure."
@@ -121,8 +123,8 @@ Output:
     "Mississippi and Oklahoma are dominated by higher quartiles, particularly Q4",
     "States like North Dakota and California show a more balanced distribution across quartiles"
   ],
-  "trends": [
-    "Values gradually decrease from left to right across the counties"
-  ],
+  "trends": [],
   "takeaway": "County counts vary widely by state, with some states having higher concentrations in the highest disability quartile while others are more evenly distributed."
 }
+
+Now analyze the following chart and produce output in the same format.
