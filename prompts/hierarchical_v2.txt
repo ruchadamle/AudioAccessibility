@@ -1,0 +1,128 @@
+You are generating a structured accessibility description of a bar chart for a blind or low-vision user.
+
+Return ONLY valid JSON.
+Do not include Markdown.
+Do not include code fences.
+Do not include any explanation before or after the JSON.
+
+Use this exact schema:
+
+{
+  "chart_type": "",
+  "title": "",
+  "axes": {
+    "x_axis_title": "",
+    "y_axis_title": "",
+    "y_axis_unit": ""
+  },
+  "key_values": [],
+  "comparisons": [],
+  "trends": [],
+  "takeaway": ""
+}
+
+Field requirements:
+- "chart_type": identify the chart type, such as "simple bar chart", "grouped bar chart", or "stacked bar chart".
+- "title": the chart title if visible, otherwise use an empty string.
+- "axes.x_axis_title": the x-axis title if visible, otherwise use an empty string.
+- "axes.y_axis_title": the y-axis title if visible, otherwise use an empty string.
+- "axes.y_axis_unit": the y-axis unit if visible, such as "percent", "percentage", "dollars", or another unit. If not visible, use an empty string.
+- "key_values": a list of short factual strings with the most important values or categories. Include the largest category and the smallest category if they are clear. Include one additional notable value when possible.
+- "comparisons": a list of short factual comparison statements, such as which category is larger or whether one value is about twice another. Only include comparisons that are clearly supported by the chart.
+- "trends": a list of short factual trend statements only when a meaningful overall pattern is visible. If no clear trend exists, return an empty list.
+- "takeaway": one short sentence summarizing the main message of the chart.
+
+Rules:
+- Use empty strings or empty arrays when information is unavailable.
+- Be factual and concise.
+- Do not hallucinate missing values, labels, or trends.
+- Do not describe anything outside the chart.
+- Output must be valid JSON only.
+
+---
+Example 1:
+Chart ID: 001_simple_bar
+Chart type: simple_bar
+Measure: Received food stamps in the past 12 months among adults
+
+Output:
+{
+  "chart_type": "simple bar chart",
+  "title": "Top 8 counties for Received food stamps in the past 12 months among adults",
+  "axes": {
+    "x_axis_title": "County",
+    "y_axis_title": "Data Value",
+    "y_axis_unit": ""
+  },
+  "key_values": [
+    "East Carroll, LA has the highest value at approximately 46",
+    "Perry, AL has the lowest value at approximately 38",
+    "Most counties fall within a narrow range between about 38 and 42"
+  ],
+  "comparisons": [
+    "East Carroll, LA is noticeably higher than all other counties",
+    "The difference between the highest and lowest counties is relatively small, under 10 points"
+  ],
+  "trends": [
+    "Values gradually decrease from left to right across the counties"
+  ],
+  "takeaway": "The top counties have relatively similar values, with East Carroll, LA slightly higher than the rest."
+}
+
+Example 2:
+Chart ID: 001_grouped_bar
+Chart type: grouped_bar
+Measure: Frequent physical distress among adults vs Stroke among adults
+
+Output:
+{
+  "chart_type": "grouped bar chart",
+  "title": "County comparison: Frequent physical distress among adults vs Stroke among adults",
+  "axes": {
+    "x_axis_title": "County",
+    "y_axis_title": "Data Value",
+    "y_axis_unit": ""
+  },
+  "key_values": [
+    "Oglala Lakota, SD has the highest frequent physical distress among adults at approximately 27",
+    "East Carroll, LA has the lowest frequent physical distress at approximately 21",
+    "Stroke among adults has relatively similar values across counties, ranging from around 6 to 7"
+  ],
+  "comparisons": [
+    "Frequent physical distress is consistently much higher than stroke across all counties",
+    "Oglala Lakota, SD has both one of the highest distress and stroke values",
+    "Hancock, TN and Kusilvak, AK have among the lowest stroke values, with very similar levels."
+  ],
+  "trends": [],
+  "takeaway": "Frequent physical distress is substantially higher than stroke in all counties, with relatively small variation within each measure."
+}
+
+Example 3:
+Chart ID: 003_stacked_bar
+Chart type: stacked_bar
+Measure: Any disability among adults
+
+Output:
+{
+  "chart_type": "stacked bar chart",
+  "title": "County distribution by Any disability among adults quartiles across states",
+  "axes": {
+    "x_axis_title": "State",
+    "y_axis_title": "County Count",
+    "y_axis_unit": "count"
+  },
+  "key_values": [
+    "Georgia (GA) has the highest total county count at approximately 160",
+    "Utah (UT) has the lowest total county count at approximately 30",
+    "Mississippi (MS) and Oklahoma (OK) have large portions of counties in the highest quartile (Q4)"
+  ],
+  "comparisons": [
+    "Georgia has substantially more counties than all other states",
+    "Mississippi and Oklahoma are dominated by higher quartiles, particularly Q4",
+    "States like North Dakota and California show a more balanced distribution across quartiles"
+  ],
+  "trends": [
+    "Values gradually decrease from left to right across the counties"
+  ],
+  "takeaway": "County counts vary widely by state, with some states having higher concentrations in the highest disability quartile while others are more evenly distributed."
+}
