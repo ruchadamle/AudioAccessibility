@@ -83,11 +83,42 @@ def is_redundant(candidate: str, existing: list[str]) -> bool:
     return False
 
 
+def extract_rank_claim(text: str) -> tuple[str, str] | None:
+    text = clean_sentence(text)
+    match = re.search(
+        r"^(?P<entity>.+?) has the (?P<rank>highest|lowest|second highest|third highest) ",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        return None
+    entity = clean_sentence(match.group("entity")).lower()
+    rank = clean_sentence(match.group("rank")).lower()
+    return entity, rank
+
+
+def contradicts_existing(candidate: str, existing: list[str]) -> bool:
+    candidate_claim = extract_rank_claim(candidate)
+    if not candidate_claim:
+        return False
+
+    candidate_entity, candidate_rank = candidate_claim
+    for current in existing:
+        current_claim = extract_rank_claim(current)
+        if not current_claim:
+            continue
+        current_entity, current_rank = current_claim
+        if candidate_rank == current_rank and candidate_entity != current_entity:
+            return True
+
+    return False
+
+
 def dedupe_sentences(items: list[str]) -> list[str]:
     result = []
     for item in items:
         item = clean_sentence(item)
-        if not item or is_redundant(item, result):
+        if not item or is_redundant(item, result) or contradicts_existing(item, result):
             continue
         result.append(item)
     return result
@@ -283,7 +314,7 @@ def gather_content_sentences(data: dict) -> list[str]:
     selected = []
     for bucket in buckets:
         for item in bucket:
-            if is_redundant(item, selected):
+            if is_redundant(item, selected) or contradicts_existing(item, selected):
                 continue
             selected.append(item)
 
@@ -314,7 +345,7 @@ def render_natural(data: dict) -> str:
         sentences.append(axis_sentence)
 
     for sentence in gather_content_sentences(data):
-        if not is_redundant(sentence, sentences):
+        if not is_redundant(sentence, sentences) and not contradicts_existing(sentence, sentences):
             sentences.append(sentence)
 
     return " ".join(sentences)

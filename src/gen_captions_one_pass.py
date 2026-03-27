@@ -232,8 +232,42 @@ def sentence_key(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def dedupe_and_limit(items: list, limit: int) -> list[str]:
-    seen = set()
+def extract_rank_claim(text: str) -> tuple[str, str] | None:
+    text = clean_sentence(text)
+    match = re.search(
+        r"^(?P<entity>.+?) has the (?P<rank>highest|lowest|second highest|third highest|fourth highest|fifth highest|sixth highest|seventh highest|eighth highest|ninth highest) ",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        return None
+    return (
+        clean_sentence(match.group("entity")).lower(),
+        clean_sentence(match.group("rank")).lower(),
+    )
+
+
+def contradicts_existing(candidate: str, existing: list[str]) -> bool:
+    candidate_claim = extract_rank_claim(candidate)
+    if not candidate_claim:
+        return False
+
+    candidate_entity, candidate_rank = candidate_claim
+    for current in existing:
+        current_claim = extract_rank_claim(current)
+        if not current_claim:
+            continue
+        current_entity, current_rank = current_claim
+        if candidate_rank == current_rank and candidate_entity != current_entity:
+            return True
+        if candidate_entity == current_entity and candidate_rank != current_rank:
+            return True
+
+    return False
+
+
+def dedupe_and_limit(items: list, limit: int, existing: list[str] | None = None) -> list[str]:
+    seen = {sentence_key(item) for item in (existing or [])}
     result = []
     for item in items or []:
         item = clean_sentence(item)
@@ -241,6 +275,9 @@ def dedupe_and_limit(items: list, limit: int) -> list[str]:
             continue
         key = sentence_key(item)
         if key in seen:
+            continue
+        current_pool = (existing or []) + result
+        if contradicts_existing(item, current_pool):
             continue
         seen.add(key)
         result.append(f"{item}.")
@@ -251,6 +288,13 @@ def dedupe_and_limit(items: list, limit: int) -> list[str]:
 
 def normalize_caption_json(data: dict) -> dict:
     axes = data.get("axes", {}) or {}
+    key_values = dedupe_and_limit(data.get("key_values", []), 3)
+    comparisons = dedupe_and_limit(data.get("comparisons", []), 3, existing=key_values)
+    trends = dedupe_and_limit(data.get("trends", []), 2, existing=key_values + comparisons)
+    takeaway = clean_sentence(data.get("takeaway", ""))
+    if takeaway and contradicts_existing(takeaway, key_values + comparisons + trends):
+        takeaway = ""
+
     normalized = {
         "chart_type": clean_sentence(data.get("chart_type", "")),
         "title": clean_sentence(data.get("title", "")),
@@ -259,10 +303,10 @@ def normalize_caption_json(data: dict) -> dict:
             "y_axis_title": clean_sentence(axes.get("y_axis_title", "")),
             "y_axis_unit": clean_sentence(axes.get("y_axis_unit", "")),
         },
-        "key_values": dedupe_and_limit(data.get("key_values", []), 3),
-        "comparisons": dedupe_and_limit(data.get("comparisons", []), 3),
-        "trends": dedupe_and_limit(data.get("trends", []), 2),
-        "takeaway": clean_sentence(data.get("takeaway", "")),
+        "key_values": key_values,
+        "comparisons": comparisons,
+        "trends": trends,
+        "takeaway": takeaway,
     }
     if normalized["takeaway"]:
         normalized["takeaway"] += "."
