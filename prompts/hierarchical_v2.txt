@@ -4,7 +4,7 @@ Output only raw JSON.
 Do not wrap the JSON in Markdown.
 Do not use code fences.
 Do not include any explanation before or after the JSON.
-Write key_values and comparisons so they can be read directly as natural sentences.
+Write key_values, comparisons, and takeaway in plain natural prose that can be combined into a short paragraph.
 
 Return valid JSON matching this exact schema:
 
@@ -38,6 +38,8 @@ Field requirements:
 
 Rules:
 - Be factual, concise, and specific.
+- Prefer wording that sounds natural when read aloud as part of a paragraph.
+- Avoid repetitive lead-ins and avoid repeating the chart title or axis labels once they are already implied.
 - Prefer approximate numeric values when exact values are not clearly labeled.
 - Do not hallucinate missing labels, values, units, or trends.
 - If values are visible, use them instead of vague wording.
