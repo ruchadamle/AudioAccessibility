@@ -60,6 +60,10 @@ Writing guidance:
 - Be factual, concise, and specific.
 - Prefer approximate numeric values when exact values are not clearly labeled.
 - Use short standalone sentences that can be rendered smoothly into a readable paragraph.
+- For simple bar charts, prefer facts such as the highest category, the lowest category, and one short range or spread statement.
+- Do not enumerate every bar, rank every county, or continue counting downward after naming the most important categories.
+- Never repeat the same county or state across multiple ranked slots unless the chart truly shows ties.
+- If you mention a "second highest" or "third highest" value, make sure it is actually different from the highest item and clearly visible.
 - Avoid redundant facts across key_values, comparisons, trends, and takeaway.
 - Avoid repeating the chart title, axis labels, or the same numeric fact in multiple fields.
 - Use natural phrasing that sounds good when read aloud.
