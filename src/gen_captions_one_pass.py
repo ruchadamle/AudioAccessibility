@@ -21,17 +21,30 @@ def load_text(path: str) -> str:
 
 
 def prettify_chart_type(chart_type: str) -> str:
-    return chart_type.replace("_", " ").strip()
+    chart_type = str(chart_type).strip().lower()
+    mapping = {
+        "simple_bar": "simple bar chart",
+        "grouped_bar": "grouped bar chart",
+        "stacked_bar": "stacked bar chart",
+    }
+    return mapping.get(chart_type, chart_type.replace("_", " ").strip())
+
+
+def clean_measure_text(measures: str) -> str:
+    measures = str(measures).strip()
+    measures = re.sub(r"\s*\|\s*", " | ", measures)
+    measures = re.sub(r"\s+", " ", measures)
+    return measures
 
 
 def build_runtime_prompt(base_prompt: str, row: pd.Series) -> str:
     chart_id = row["chart_id"]
     chart_type = prettify_chart_type(row["chart_type"])
-    measures = row["measures"]
+    measures = clean_measure_text(row["measures"])
 
     runtime_header = (
         f"Chart ID: {chart_id}\n"
-        f"Expected chart subtype: {chart_type}\n"
+        f"Expected chart type: {chart_type}\n"
         f"Measure(s): {measures}\n\n"
     )
     return runtime_header + base_prompt
@@ -212,6 +225,15 @@ def try_parse_json(text: str):
     try:
         return json.loads(cleaned), True
     except json.JSONDecodeError:
+        start = cleaned.find("{")
+        end = cleaned.rfind("}")
+        if start != -1 and end != -1 and start < end:
+            candidate = cleaned[start:end + 1]
+            try:
+                return json.loads(candidate), True
+            except json.JSONDecodeError:
+                pass
+
         return {
             "error": "invalid_json",
             "raw_output": text,
