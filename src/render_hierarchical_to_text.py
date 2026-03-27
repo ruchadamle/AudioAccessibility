@@ -16,175 +16,306 @@ def clean_text(text: str) -> str:
 
 
 def clean_sentence(text: str) -> str:
-    text = clean_text(text)
-    text = text.rstrip(". ")
-    return text
+    return clean_text(text).rstrip(". ")
 
 
 def ensure_period(text: str) -> str:
     text = clean_sentence(text)
-    if not text:
-        return ""
-    return text + "."
+    return f"{text}." if text else ""
 
 
 def sentence_key(text: str) -> str:
     text = clean_sentence(text).lower()
     text = re.sub(r"[^a-z0-9\s]", "", text)
-    text = re.sub(r"\s+", " ", text).strip()
-    return text
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def tokenize_for_overlap(text: str) -> set[str]:
+    words = re.findall(r"[a-z0-9]+", clean_sentence(text).lower())
+    stopwords = {
+        "a",
+        "an",
+        "and",
+        "are",
+        "as",
+        "at",
+        "by",
+        "for",
+        "from",
+        "has",
+        "have",
+        "in",
+        "is",
+        "it",
+        "of",
+        "on",
+        "or",
+        "shows",
+        "that",
+        "the",
+        "this",
+        "to",
+        "with",
+    }
+    return {word for word in words if word not in stopwords}
+
+
+def is_redundant(candidate: str, existing: list[str]) -> bool:
+    candidate_key = sentence_key(candidate)
+    candidate_tokens = tokenize_for_overlap(candidate)
+
+    for current in existing:
+        current_key = sentence_key(current)
+        if not current_key:
+            continue
+        if candidate_key == current_key:
+            return True
+        if candidate_key and (candidate_key in current_key or current_key in candidate_key):
+            return True
+
+        current_tokens = tokenize_for_overlap(current)
+        if candidate_tokens and current_tokens:
+            overlap = len(candidate_tokens & current_tokens)
+            denominator = min(len(candidate_tokens), len(current_tokens))
+            if denominator and overlap / denominator >= 0.8:
+                return True
+
+    return False
 
 
 def dedupe_sentences(items: list[str]) -> list[str]:
-    seen = set()
     result = []
     for item in items:
         item = clean_sentence(item)
-        if not item:
+        if not item or is_redundant(item, result):
             continue
-        key = sentence_key(item)
-        if key not in seen:
-            seen.add(key)
-            result.append(item)
+        result.append(item)
     return result
-
-
-def soften_after_prefix(text: str) -> str:
-    text = clean_sentence(text)
-    if not text:
-        return ""
-
-    first_word, separator, rest = text.partition(" ")
-    common_starters = {
-        "a",
-        "an",
-        "the",
-        "this",
-        "these",
-        "those",
-        "it",
-        "its",
-        "there",
-        "values",
-        "most",
-    }
-
-    if first_word.lower() in common_starters:
-        return first_word.lower() + (separator + rest if separator else "")
-    return text
-
-
-def join_clauses(items: list[str]) -> str:
-    items = [clean_sentence(item) for item in items if clean_sentence(item)]
-    if not items:
-        return ""
-    if len(items) == 1:
-        return items[0]
-    first_item = items[0]
-    remaining_items = [soften_after_prefix(item) for item in items[1:]]
-    return "; ".join([first_item] + remaining_items)
-
-
-def build_group_sentence(prefix: str, items: list[str]) -> str:
-    content = join_clauses(items)
-    if not content:
-        return ""
-    return ensure_period(f"{prefix} {soften_after_prefix(content)}")
 
 
 def normalize_chart_type(chart_type: str) -> str:
     chart_type = clean_sentence(chart_type).replace("_", " ")
     chart_type = re.sub(r"\s+", " ", chart_type)
-    return chart_type
+
+    mapping = {
+        "simple bar": "bar chart",
+        "simple bar chart": "bar chart",
+        "grouped bar": "grouped bar chart",
+        "grouped bar chart": "grouped bar chart",
+        "stacked bar": "stacked bar chart",
+        "stacked bar chart": "stacked bar chart",
+    }
+    return mapping.get(chart_type.lower(), chart_type or "chart")
 
 
-def normalize_title(title: str) -> str:
-    return clean_sentence(title)
+def normalize_measure_text(text: str) -> str:
+    text = clean_sentence(text)
+    if not text:
+        return ""
+
+    replacements = {
+        " among adults quartiles": " among adults",
+        " quartiles": "",
+        " across states": "",
+    }
+    lowered = text.lower()
+    for old, new in replacements.items():
+        if old in lowered:
+            pattern = re.compile(re.escape(old), re.IGNORECASE)
+            text = pattern.sub(new, text)
+            lowered = text.lower()
+
+    return clean_sentence(text)
 
 
-def build_intro(chart_type: str, title: str, axes: dict) -> str:
-    chart_type = normalize_chart_type(chart_type)
-    title = normalize_title(title)
+def detect_stacked_quartile_chart(chart_type: str, title: str) -> bool:
+    title_key = clean_sentence(title).lower()
+    chart_key = clean_sentence(chart_type).lower()
+    return (
+        "stacked" in chart_key
+        or "quartile" in title_key
+    ) and "distribution by" in title_key and "across states" in title_key
 
+
+def rewrite_title_intro(chart_type: str, title: str) -> str:
+    normalized_type = normalize_chart_type(chart_type)
+    title = clean_sentence(title)
+    title_key = title.lower()
+
+    top_match = re.match(r"top\s+\d+\s+counties\s+for\s+(.+)", title, flags=re.IGNORECASE)
+    if top_match:
+        measure = normalize_measure_text(top_match.group(1))
+        return f"This {normalized_type} shows the counties with the highest {measure}."
+
+    comparison_match = re.match(
+        r"county comparison:\s*(.+?)\s+vs\.?\s+(.+)",
+        title,
+        flags=re.IGNORECASE,
+    )
+    if comparison_match:
+        left = clean_sentence(comparison_match.group(1))
+        right = clean_sentence(comparison_match.group(2))
+        return f"This grouped bar chart compares {left} and {right} across counties."
+
+    distribution_match = re.match(
+        r"county distribution by\s+(.+?)\s+quartiles across states",
+        title,
+        flags=re.IGNORECASE,
+    )
+    if distribution_match:
+        measure = normalize_measure_text(distribution_match.group(1))
+        return (
+            f"This stacked bar chart shows how counties are distributed across states "
+            f"by quartiles of {measure}."
+        )
+
+    stacked_distribution_match = re.match(
+        r"county distribution by\s+(.+?)\s+across states",
+        title,
+        flags=re.IGNORECASE,
+    )
+    if stacked_distribution_match and "stacked" in clean_sentence(chart_type).lower():
+        measure = normalize_measure_text(stacked_distribution_match.group(1))
+        return (
+            f"This stacked bar chart shows how counties are distributed across states "
+            f"for {measure}."
+        )
+
+    if title_key and normalized_type != "chart":
+        return f"This {normalized_type} shows {title.lower()}."
+    if title_key:
+        return f"This chart shows {title.lower()}."
+    if normalized_type != "chart":
+        return f"This {normalized_type} shows the data."
+    return "This chart shows the data."
+
+
+def normalize_axis_label(label: str, unit: str) -> str:
+    label = clean_sentence(label)
+    unit = clean_sentence(unit).lower()
+    lowered = label.lower()
+
+    if not label:
+        return ""
+    if lowered == "data value":
+        if unit == "percent":
+            return "percentage values"
+        return ""
+    if lowered in {"county count", "count of counties", "count"}:
+        return "the number of counties"
+    if lowered in {"percentage", "percent", "percentages"}:
+        return "percentage values"
+    if lowered.endswith(" (%)") or "%" in lowered:
+        return "percentage values"
+    return label.lower()
+
+
+def build_axis_sentence(axes: dict, chart_type: str, title: str) -> str:
     x_axis = clean_sentence(axes.get("x_axis_title", ""))
     y_axis = clean_sentence(axes.get("y_axis_title", ""))
     unit = clean_sentence(axes.get("y_axis_unit", ""))
 
-    if chart_type and title:
-        intro = f'This {chart_type} is titled "{title}"'
-    elif chart_type:
-        intro = f"This {chart_type} shows the data"
-    elif title:
-        intro = f'This chart is titled "{title}"'
-    else:
-        intro = "This chart shows the data"
+    if detect_stacked_quartile_chart(chart_type, title):
+        return "States are shown on the x-axis, and the y-axis shows the number of counties."
 
-    if x_axis and y_axis and unit:
-        intro += f", with {x_axis} on the x-axis and {y_axis} on the y-axis in {unit}"
-    elif x_axis and y_axis:
-        intro += f", with {x_axis} on the x-axis and {y_axis} on the y-axis"
-    elif x_axis:
-        intro += f", with {x_axis} on the x-axis"
-    elif y_axis and unit:
-        intro += f", with {y_axis} on the y-axis in {unit}"
-    elif y_axis:
-        intro += f", with {y_axis} on the y-axis"
+    x_key = x_axis.lower()
+    y_phrase = normalize_axis_label(y_axis, unit)
+    unit_key = unit.lower()
 
-    return ensure_period(intro)
+    if y_phrase == "percentage values" or unit_key == "percent":
+        if x_key == "county":
+            return "Counties are shown on the x-axis, and values are shown as percentages."
+        if x_key == "state":
+            return "States are shown on the x-axis, and values are shown as percentages."
+        return "Values are shown as percentages."
+
+    if x_key == "county" and not y_phrase:
+        return "Counties are shown on the x-axis."
+    if x_key == "state" and y_phrase:
+        return f"States are shown on the x-axis, and the y-axis shows {y_phrase}."
+    if x_key == "county" and y_phrase:
+        return f"Counties are shown on the x-axis, and the y-axis shows {y_phrase}."
+    if y_phrase:
+        return f"The y-axis shows {y_phrase}."
+    return ""
+
+
+def polish_sentence(text: str, chart_type: str, title: str) -> str:
+    text = clean_sentence(text)
+    if not text:
+        return ""
+
+    if detect_stacked_quartile_chart(chart_type, title):
+        text = re.sub(r"\bhighest count\b", "highest total county count", text, flags=re.IGNORECASE)
+        text = re.sub(r"\blowest count\b", "lowest total county count", text, flags=re.IGNORECASE)
+        text = re.sub(r"\bhighest counts\b", "largest total county counts", text, flags=re.IGNORECASE)
+        text = re.sub(r"\blowest counts\b", "smallest total county counts", text, flags=re.IGNORECASE)
+        text = re.sub(r"\ba count between\b", "a total county count between", text, flags=re.IGNORECASE)
+        text = re.sub(
+            r"\bhighest counts of ([^.]+)",
+            r"largest total county counts in this chart",
+            text,
+            flags=re.IGNORECASE,
+        )
+
+    text = re.sub(r"\bData Value\b", "value", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bCounty Count\b", "county count", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s+,", ",", text)
+    text = re.sub(r"\s+;", ";", text)
+
+    return ensure_period(text)
+
+
+def gather_content_sentences(data: dict) -> list[str]:
+    chart_type = data.get("chart_type", "")
+    title = data.get("title", "")
+
+    buckets = [
+        dedupe_sentences(data.get("key_values", []) or [])[:3],
+        dedupe_sentences(data.get("comparisons", []) or [])[:2],
+        dedupe_sentences(data.get("trends", []) or [])[:1],
+    ]
+
+    takeaway = clean_sentence(data.get("takeaway", ""))
+    if takeaway:
+        buckets.append([takeaway])
+
+    selected = []
+    for bucket in buckets:
+        for item in bucket:
+            if is_redundant(item, selected):
+                continue
+            selected.append(item)
+
+    polished = []
+    for item in selected:
+        sentence = polish_sentence(item, chart_type, title)
+        if sentence and not is_redundant(sentence, polished):
+            polished.append(sentence)
+        if len(polished) >= 4:
+            return polished
+
+    return polished
 
 
 def render_natural(data: dict) -> str:
     chart_type = data.get("chart_type", "")
     title = data.get("title", "")
     axes = data.get("axes", {}) or {}
-    key_values = dedupe_sentences(data.get("key_values", []) or [])
-    comparisons = dedupe_sentences(data.get("comparisons", []) or [])
-    trends = dedupe_sentences(data.get("trends", []) or [])
-    takeaway = clean_sentence(data.get("takeaway", ""))
 
     sentences = []
 
-    intro = build_intro(chart_type, title, axes)
+    intro = rewrite_title_intro(chart_type, title)
     if intro:
         sentences.append(intro)
 
-    used_keys = {sentence_key(s) for s in sentences}
+    axis_sentence = build_axis_sentence(axes, chart_type, title)
+    if axis_sentence and not is_redundant(axis_sentence, sentences):
+        sentences.append(axis_sentence)
 
-    selected_key_values = []
-    for item in key_values[:3]:
-        key = sentence_key(item)
-        if key and key not in used_keys:
-            selected_key_values.append(item)
-            used_keys.add(key)
-
-    selected_comparisons = []
-    for item in comparisons[:2]:
-        key = sentence_key(item)
-        if key and key not in used_keys:
-            selected_comparisons.append(item)
-            used_keys.add(key)
-
-    selected_trends = []
-    for item in trends[:1]:
-        key = sentence_key(item)
-        if key and key not in used_keys:
-            selected_trends.append(item)
-            used_keys.add(key)
-
-    key_values_sentence = build_group_sentence("Notably,", selected_key_values)
-    if key_values_sentence:
-        sentences.append(key_values_sentence)
-
-    comparisons_sentence = build_group_sentence("In comparison,", selected_comparisons)
-    if comparisons_sentence:
-        sentences.append(comparisons_sentence)
-
-    trends_sentence = build_group_sentence("Overall,", selected_trends)
-    if trends_sentence:
-        sentences.append(trends_sentence)
-
-    if takeaway:
-        sentences.append(ensure_period(takeaway))
+    for sentence in gather_content_sentences(data):
+        if not is_redundant(sentence, sentences):
+            sentences.append(sentence)
 
     return " ".join(sentences)
 
