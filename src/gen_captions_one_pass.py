@@ -10,6 +10,7 @@ from transformers import (
     LlavaForConditionalGeneration,
     Qwen2VLForConditionalGeneration,
 )
+from qwen_vl_utils import process_vision_info
 
 
 def load_text(path: str) -> str:
@@ -37,57 +38,63 @@ class QwenCaptioner:
             model_id,
             torch_dtype=torch.float16,
             device_map="auto",
-            attn_implementation="eager",
         )
         self.processor = AutoProcessor.from_pretrained(
             model_id,
             min_pixels=256 * 28 * 28,
-            max_pixels=640 * 28 * 28,
+            max_pixels=384 * 28 * 28,
         )
 
     def generate_from_image(self, image_path: str, prompt_text: str, max_new_tokens: int = 256) -> str:
         torch.cuda.empty_cache()
 
-        conversation = [
+        messages = [
             {
                 "role": "user",
                 "content": [
-                    {"type": "image", "path": image_path},
+                    {"type": "image", "image": image_path},
                     {"type": "text", "text": prompt_text},
                 ],
             }
         ]
 
-        inputs = self.processor.apply_chat_template(
-            conversation,
+        text = self.processor.apply_chat_template(
+            messages,
+            tokenize=False,
             add_generation_prompt=True,
-            tokenize=True,
-            return_dict=True,
+        )
+
+        image_inputs, video_inputs = process_vision_info(messages)
+
+        inputs = self.processor(
+            text=[text],
+            images=image_inputs,
+            videos=video_inputs,
+            padding=True,
             return_tensors="pt",
         )
 
         inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
 
         with torch.inference_mode():
-            output_ids = self.model.generate(
+            generated_ids = self.model.generate(
                 **inputs,
                 max_new_tokens=max_new_tokens,
                 do_sample=False,
-                use_cache=True,
             )
 
-        generated_ids = [
-            output_ids[i][inputs["input_ids"].shape[1]:]
-            for i in range(len(output_ids))
+        generated_ids_trimmed = [
+            out_ids[len(in_ids):]
+            for in_ids, out_ids in zip(inputs["input_ids"], generated_ids)
         ]
 
         output_text = self.processor.batch_decode(
-            generated_ids,
+            generated_ids_trimmed,
             skip_special_tokens=True,
-            clean_up_tokenization_spaces=True,
+            clean_up_tokenization_spaces=False,
         )[0]
 
-        del inputs, output_ids, generated_ids
+        del inputs, generated_ids, generated_ids_trimmed
         torch.cuda.empty_cache()
 
         return output_text.strip()
@@ -224,7 +231,7 @@ def run_generation(
         hierarchical_output = captioner.generate_from_image(
             image_path=image_path,
             prompt_text=hierarchical_runtime_prompt,
-            max_new_tokens=300,
+            max_new_tokens=260,
         )
         save_text(output_root / "hierarchical_raw" / f"{chart_id}.txt", hierarchical_output)
 
