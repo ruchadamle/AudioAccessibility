@@ -35,12 +35,19 @@ class QwenCaptioner:
         self.model_id = model_id
         self.model = Qwen2VLForConditionalGeneration.from_pretrained(
             model_id,
-            torch_dtype="auto",
+            torch_dtype=torch.float16,
             device_map="auto",
+            attn_implementation="eager",
         )
-        self.processor = AutoProcessor.from_pretrained(model_id)
+        self.processor = AutoProcessor.from_pretrained(
+            model_id,
+            min_pixels=256 * 28 * 28,
+            max_pixels=640 * 28 * 28,
+        )
 
-    def generate_from_image(self, image_path: str, prompt_text: str, max_new_tokens: int = 512) -> str:
+    def generate_from_image(self, image_path: str, prompt_text: str, max_new_tokens: int = 256) -> str:
+        torch.cuda.empty_cache()
+
         conversation = [
             {
                 "role": "user",
@@ -57,18 +64,21 @@ class QwenCaptioner:
             tokenize=True,
             return_dict=True,
             return_tensors="pt",
-        ).to(self.model.device)
+        )
+
+        inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
 
         with torch.inference_mode():
             output_ids = self.model.generate(
                 **inputs,
                 max_new_tokens=max_new_tokens,
                 do_sample=False,
+                use_cache=True,
             )
 
         generated_ids = [
-            output_ids[len(input_ids):]
-            for input_ids, output_ids in zip(inputs.input_ids, output_ids)
+            output_ids[i][inputs["input_ids"].shape[1]:]
+            for i in range(len(output_ids))
         ]
 
         output_text = self.processor.batch_decode(
@@ -76,6 +86,9 @@ class QwenCaptioner:
             skip_special_tokens=True,
             clean_up_tokenization_spaces=True,
         )[0]
+
+        del inputs, output_ids, generated_ids
+        torch.cuda.empty_cache()
 
         return output_text.strip()
 
@@ -203,7 +216,7 @@ def run_generation(
         baseline_output = captioner.generate_from_image(
             image_path=image_path,
             prompt_text=baseline_runtime_prompt,
-            max_new_tokens=300,
+            max_new_tokens=180,
         )
         save_text(output_root / "baseline" / f"{chart_id}.txt", baseline_output)
 
@@ -211,7 +224,7 @@ def run_generation(
         hierarchical_output = captioner.generate_from_image(
             image_path=image_path,
             prompt_text=hierarchical_runtime_prompt,
-            max_new_tokens=500,
+            max_new_tokens=300,
         )
         save_text(output_root / "hierarchical_raw" / f"{chart_id}.txt", hierarchical_output)
 
