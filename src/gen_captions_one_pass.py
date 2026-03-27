@@ -8,6 +8,7 @@ import torch
 from PIL import Image
 from transformers import (
     AutoProcessor,
+    BitsAndBytesConfig,
     LlavaForConditionalGeneration,
     Qwen2VLForConditionalGeneration,
 )
@@ -108,18 +109,34 @@ class QwenCaptioner:
 class LlavaCaptioner:
     def __init__(self, model_id: str = "llava-hf/llava-1.5-7b-hf"):
         self.model_id = model_id
+        model_kwargs = {
+            "low_cpu_mem_usage": True,
+            "device_map": "auto",
+        }
+
+        if torch.cuda.is_available():
+            model_kwargs["quantization_config"] = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_compute_dtype=torch.float16,
+            )
+        else:
+            model_kwargs["torch_dtype"] = torch.float32
+
         self.model = LlavaForConditionalGeneration.from_pretrained(
             model_id,
-            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-            low_cpu_mem_usage=True,
-            device_map="auto",
+            **model_kwargs,
         )
-        self.processor = AutoProcessor.from_pretrained(model_id)
+        self.processor = AutoProcessor.from_pretrained(model_id, use_fast=False)
 
         if hasattr(self.processor, "tokenizer"):
             self.processor.tokenizer.padding_side = "left"
 
     def generate_from_image(self, image_path: str, prompt_text: str, max_new_tokens: int = 512) -> str:
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
         image = Image.open(image_path).convert("RGB")
 
         conversation = [
@@ -159,6 +176,11 @@ class LlavaCaptioner:
             skip_special_tokens=True,
             clean_up_tokenization_spaces=True,
         )[0]
+
+        image.close()
+        del inputs, output, generated
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
 
         return output_text.strip()
 
