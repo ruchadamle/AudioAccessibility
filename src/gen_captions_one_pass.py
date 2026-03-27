@@ -1,5 +1,6 @@
 import argparse
 import json
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -18,9 +19,13 @@ def load_text(path: str) -> str:
         return f.read().strip()
 
 
+def prettify_chart_type(chart_type: str) -> str:
+    return chart_type.replace("_", " ").strip()
+
+
 def build_runtime_prompt(base_prompt: str, row: pd.Series) -> str:
     chart_id = row["chart_id"]
-    chart_type = row["chart_type"]
+    chart_type = prettify_chart_type(row["chart_type"])
     measures = row["measures"]
 
     runtime_header = (
@@ -138,7 +143,6 @@ class LlavaCaptioner:
             return_tensors="pt",
         )
 
-        # Move tensors to the model device
         inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
 
         with torch.inference_mode():
@@ -170,11 +174,27 @@ def save_text(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
+def strip_json_fences(text: str) -> str:
+    text = text.strip()
+
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
+        text = re.sub(r"\s*```$", "", text)
+
+    return text.strip()
+
+
 def try_parse_json(text: str):
+    cleaned = strip_json_fences(text)
+
     try:
-        return json.loads(text), True
+        return json.loads(cleaned), True
     except json.JSONDecodeError:
-        return {"error": "invalid_json", "raw_output": text}, False
+        return {
+            "error": "invalid_json",
+            "raw_output": text,
+            "cleaned_output": cleaned,
+        }, False
 
 
 def run_generation(
@@ -219,7 +239,6 @@ def run_generation(
         baseline_runtime_prompt = build_runtime_prompt(baseline_prompt, row)
         hierarchical_runtime_prompt = build_runtime_prompt(hierarchical_prompt, row)
 
-        # Baseline caption
         baseline_output = captioner.generate_from_image(
             image_path=image_path,
             prompt_text=baseline_runtime_prompt,
@@ -227,11 +246,10 @@ def run_generation(
         )
         save_text(output_root / "baseline" / f"{chart_id}.txt", baseline_output)
 
-        # Hierarchical output
         hierarchical_output = captioner.generate_from_image(
             image_path=image_path,
             prompt_text=hierarchical_runtime_prompt,
-            max_new_tokens=260,
+            max_new_tokens=320,
         )
         save_text(output_root / "hierarchical_raw" / f"{chart_id}.txt", hierarchical_output)
 
