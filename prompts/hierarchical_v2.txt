@@ -96,12 +96,7 @@ When identifying the highest or lowest category:
 - Do not assume the label next to the extreme bar belongs to it
 - The category name and value must come from the same bar
 
-Before writing a highest or lowest sentence, check:
-1. Which exact bar is tallest or shortest?
-2. What label belongs directly to that exact bar?
-3. Does the value match that same bar?
-
-If the label is not clear for that exact bar, do not name the category.
+If the label is uncertain, omit the category name but keep the value
 
 ---
 
