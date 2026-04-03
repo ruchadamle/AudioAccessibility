@@ -75,11 +75,14 @@ axes:
 ---
 
 key_values (2–3 sentences):
-- Include the highest value if clear
-- Include the lowest value if clear
-- Optionally describe the overall range
-- Do not list all categories
 
+- For stacked bar charts:
+  - Include at least one sentence about quartile distribution
+  - You may include one sentence about total counts
+  - Prioritize describing which quartiles are most prominent
+
+- For other charts:
+  - Include highest and lowest if clear
 ---
 
 comparisons (1–3 sentences):
@@ -117,6 +120,32 @@ Style rules:
 - Each sentence should stand alone
 - Do not repeat the same fact in multiple sections
 - Do not restate the title
+
+---
+
+Stacked bar chart rules (important):
+
+- These charts show how categories are divided into segments (such as quartiles)
+- The main goal is to describe the composition of each bar, not just the total height
+
+When describing stacked bar charts:
+- Focus on which segments (quartiles) make up larger or smaller portions of each bar
+- Describe whether a state has more counties in higher quartiles (e.g., Q4) or lower quartiles (e.g., Q1)
+- Compare how distributions differ between states
+
+Do NOT:
+- Focus mainly on total counts
+- Repeat only which state has the most or fewest counties
+- Treat quartiles as totals of people
+
+You MAY:
+- Mention total counts briefly (at most one sentence)
+- But most sentences should describe quartile distribution
+
+Examples of good descriptions:
+- "State X has a large share of counties in the highest quartile (Q4)."
+- "State Y is more evenly distributed across all quartiles."
+- "State Z has a higher concentration in the lower quartiles (Q1 and Q2)."
 
 ---
 
