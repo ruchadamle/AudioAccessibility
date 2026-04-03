@@ -58,19 +58,19 @@ Copy the title if visible, otherwise ""
 
 axes:
 - x_axis_title: describe what the x-axis shows
-- y_axis_title:
-  - Use "Percentage" if ANY of the following are true:
-    - Values are between 0 and 100
-    - The chart describes rates, percentages, prevalence, or "among adults"
-    - The measure sounds like a share of people (for example: "received", "have", "rate", "prevalence")
-  - Otherwise use "Count" or "Value"
-- y_axis_unit:
-  - Use "percent" if ANY of the following are true:
-    - Values are between 0 and 100
-    - The measure describes a portion of people or rate
-  - Use "count" only if the chart clearly shows totals (for example: number of counties, number of people)
-  - Use "" if unclear
 
+- y_axis_title:
+  - If the chart label is generic (such as "Data Value"), IGNORE it
+  - If the measure describes people, rates, prevalence, or outcomes (for example "among adults", "rate", "prevalence", "received", "have"), use "Percentage"
+  - If values are mostly between 0 and 100, use "Percentage"
+  - Otherwise use "Count" or "Value"
+
+- y_axis_unit:
+  - If the chart label is generic (such as "Data Value"), IGNORE it
+  - If the data represents rates or shares of people, use "percent"
+  - If values are between 0 and 100, use "percent"
+  - Use "count" ONLY if the chart clearly shows totals (for example number of counties or number of people)
+  - Use "" only if truly unclear
 ---
 
 key_values (2–3 sentences):
