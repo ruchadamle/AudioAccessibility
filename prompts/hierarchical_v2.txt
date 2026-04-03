@@ -22,8 +22,9 @@ Ranking rules (important):
 
 - Compare all bars before saying highest or lowest
 - Do not rely on left-to-right position
-- Only state highest or lowest if you are sure
-- If unsure, do not include it
+- Do not rely on neighboring labels
+- Only state highest or lowest if the bar and its label can be matched with confidence
+- If the extreme bar is clear but its label is unclear, omit the category name
 
 ---
 
@@ -85,6 +86,22 @@ comparisons (1–3 sentences):
 - Compare values meaningfully
 - Do not repeat key_values
 - For grouped charts, compare bars within the same category
+
+Extreme value matching rule:
+
+When identifying the highest or lowest category:
+- First find the bar with the highest or lowest value
+- Then read the label attached to that exact bar
+- Do not copy the label from a nearby bar
+- Do not assume the label next to the extreme bar belongs to it
+- The category name and value must come from the same bar
+
+Before writing a highest or lowest sentence, check:
+1. Which exact bar is tallest or shortest?
+2. What label belongs directly to that exact bar?
+3. Does the value match that same bar?
+
+If the label is not clear for that exact bar, do not name the category.
 
 ---
 
