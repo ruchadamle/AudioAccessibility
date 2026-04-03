@@ -30,7 +30,7 @@ Field requirements:
 - "axes.x_axis_title": use a human-readable x-axis label if it is visible or strongly supported by the chart. Do not blindly copy awkward text.
 - "axes.y_axis_title": use a human-readable y-axis label if it is visible or strongly supported by the chart.
 - "axes.y_axis_unit": use a human-readable unit only when it is safely inferable from the chart. Otherwise use an empty string.
-- "key_values": include 2 to 3 short factual standalone sentences that are easy to read directly in prose.
+- "key_values": include 2 to 3 short factual standalone sentences that are easy to read directly in prose. When clearly identifiable and meaningful, include the highest value and the lowest value.
 - "comparisons": include 1 to 3 short factual standalone sentences that add useful relationships and do not simply repeat key_values.
 - "trends": include 0 to 2 short factual standalone sentences only if a meaningful overall pattern is visible.
 - "takeaway": include one short, natural sentence summarizing the main message without repeating the title.
