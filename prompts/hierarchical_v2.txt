@@ -14,7 +14,7 @@ Do NOT include things like:
 - Any text with { } or : inside sentences
 
 Always write natural sentences like:
-"California has a value of about 10."
+"State X has a value of about 10."
 
 ---
 
@@ -58,8 +58,14 @@ Copy the title if visible, otherwise ""
 
 axes:
 - x_axis_title: describe what the x-axis shows
-- y_axis_title: use a clear label like "Percentage" or "Count"
-- y_axis_unit: use "percent", "count", or "" (do not guess)
+- y_axis_title:
+  - Use "Percentage" if the values reasonably represent percentages (for example values like 0–100 for rates, prevalence, or shares)
+  - Otherwise use "Count" or a clear generic label like "Value"
+- y_axis_unit:
+  - Use "percent" if the data appears to be percentages (even if the % sign is not shown but values look like percentages)
+  - Use "count" if totals are shown
+  - Use "" if unclear
+  - Do not guess beyond what is reasonable from the chart
 
 ---
 
@@ -106,8 +112,8 @@ Example 1 (simple bar chart):
   "title": "Example title for a simple bar chart",
   "axes": {
     "x_axis_title": "Category",
-    "y_axis_title": "Value",
-    "y_axis_unit": ""
+    "y_axis_title": "Percentage",
+    "y_axis_unit": "percent"
   },
   "key_values": [
     "Category A has the highest value at approximately 50.",
@@ -130,8 +136,8 @@ Example 2 (grouped bar chart):
   "title": "Example comparison between two measures",
   "axes": {
     "x_axis_title": "Category",
-    "y_axis_title": "Value",
-    "y_axis_unit": ""
+    "y_axis_title": "Percentage",
+    "y_axis_unit": "percent"
   },
   "key_values": [
     "Category B has the highest value for Measure 1 at approximately 25.",
@@ -168,7 +174,7 @@ Example 3 (stacked bar chart):
   "takeaway": "Total counts vary across groups, with differences in how values are distributed across segments."
 }
 
-----
+---
 
 Final check before answering:
 
