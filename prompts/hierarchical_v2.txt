@@ -195,6 +195,32 @@ Before output:
 - No JSON fragments inside text fields
 - Grouped charts include measure-to-measure comparison
 - Stacked charts correctly interpret quartiles
+
+TEXT REALIZATION REQUIREMENT (MANDATORY)
+
+All items in "key_values", "comparisons", "trends", and "takeaway" must be fully written natural-language sentences.
+
+You must convert all data into sentences.
+
+If any item contains:
+- "{"
+- "}"
+- ":"
+- key names such as "state", "count", "value"
+
+then the output is INVALID and must be rewritten before returning.
+
+You are required to rewrite raw data into sentences.
+
+Example transformation rule:
+
+Input data:
+state = SD, count = 63
+
+Required output:
+"South Dakota (SD) has approximately 63 counties."
+
+Do not return raw data under any circumstances.
 - Any rank claim is based on full-chart comparison, not adjacency
 
 Return JSON only.
