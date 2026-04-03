@@ -1,156 +1,190 @@
-You are generating a structured accessibility description of a bar chart for a blind or low-vision user.
+You are describing a bar chart for a blind or low-vision user.
 
-Output raw JSON only.
-Do not wrap the JSON in Markdown.
-Do not use code fences.
-Do not include any explanation before or after the JSON.
+Follow these rules:
 
-Return valid JSON matching this exact schema:
+- Only use information visible in the chart
+- Do not guess or add missing data
+- If something is unclear, skip it
+- Output must be valid JSON only
+- Do not write anything outside the JSON
+- All text fields must be full sentences (no raw data, no key-value formats)
+
+Do NOT include things like:
+- {"state": "CA", "value": 10}
+- Any text with { } or : inside sentences
+
+Always write natural sentences like:
+"State X has a value of about 10."
+
+---
+
+Ranking rules (important):
+
+- Compare all bars before saying highest or lowest
+- Do not rely on left-to-right position
+- Only state highest or lowest if you are sure
+- If unsure, do not include it
+
+---
+
+Output format:
 
 {
-  "chart_type": "",
-  "title": "",
-  "axes": {
-    "x_axis_title": "",
-    "y_axis_title": "",
-    "y_axis_unit": ""
-  },
-  "key_values": [],
-  "comparisons": [],
-  "trends": [],
-  "takeaway": ""
+"chart_type": "",
+"title": "",
+"axes": {
+"x_axis_title": "",
+"y_axis_title": "",
+"y_axis_unit": ""
+},
+"key_values": [],
+"comparisons": [],
+"trends": [],
+"takeaway": ""
 }
 
-Field requirements:
-- "chart_type": use only one of these natural labels:
-  - "simple bar chart"
-  - "grouped bar chart"
-  - "stacked bar chart"
-- "title": copy the visible chart title if present, otherwise use an empty string.
-- "axes.x_axis_title": use a human-readable x-axis label if it is visible or strongly supported by the chart. Do not blindly copy awkward text.
-- "axes.y_axis_title": use a human-readable y-axis label if it is visible or strongly supported by the chart.
-- "axes.y_axis_unit": use a human-readable unit only when it is safely inferable from the chart. Otherwise use an empty string.
-- "key_values": include 2 to 3 short factual standalone sentences that are easy to read directly in prose.
-- "comparisons": include 1 to 3 short factual standalone sentences that add useful relationships and do not simply repeat key_values.
-- "trends": include 0 to 2 short factual standalone sentences only if a meaningful overall pattern is visible.
-- "takeaway": include one short, natural sentence summarizing the main message without repeating the title.
+---
 
-Axis guidance:
-- Prefer labels that help a human understand the chart rather than labels copied literally from the image.
-- If the chart clearly shows percentages, prefer a human-readable label such as:
-  - "Percentage"
-  - "Percent"
-  and use "percent" as the unit when appropriate.
-- If the visible y-axis label is generic, such as "Data Value", prefer a clearer interpretation only when the chart strongly supports it.
-- If the chart does not safely support a clearer interpretation, keep the label general rather than hallucinating.
-- Do not invent units that are not supported by the chart.
+Field instructions:
 
-Stacked quartile guidance:
-- For stacked bar charts with titles like "County distribution by X quartiles across states", interpret the chart as showing how counties are distributed across quartiles of X for each state.
-- These charts show total county counts and quartile composition, not direct counts of people with the condition.
-- Describe total county counts separately from quartile composition.
-- Do not write misleading statements such as:
-  - "Mississippi has the highest count of arthritis among adults"
-- Prefer statements such as:
-  - "Georgia has the highest total county count at approximately 160"
-  - "Mississippi and Oklahoma have larger shares in the highest quartile (Q4)"
-  - "The chart shows how counties are distributed across quartiles for arthritis prevalence across states"
+chart_type:
+Use one of:
+"simple bar chart"
+"grouped bar chart"
+"stacked bar chart"
 
-Writing guidance:
-- Be factual, concise, and specific.
-- Prefer approximate numeric values when exact values are not clearly labeled.
-- Use short standalone sentences that can be rendered smoothly into a readable paragraph.
-- For simple bar charts, prefer facts such as the highest category, the lowest category, and one short range or spread statement.
-- Do not enumerate every bar, rank every county, or continue counting downward after naming the most important categories.
-- Never repeat the same county or state across multiple ranked slots unless the chart truly shows ties.
-- If you mention a "second highest" or "third highest" value, make sure it is actually different from the highest item and clearly visible.
-- Avoid redundant facts across key_values, comparisons, trends, and takeaway.
-- Avoid repeating the chart title, axis labels, or the same numeric fact in multiple fields.
-- Use natural phrasing that sounds good when read aloud.
-- Do not hallucinate missing labels, values, units, or trends.
-- Output must be valid JSON only.
+title:
+Copy the title if visible, otherwise ""
 
-Example 1:
-Chart ID: 001_simple_bar
-Chart type: simple bar chart
-Measure: Received food stamps in the past 12 months among adults
+axes:
+- x_axis_title: describe what the x-axis shows
 
-Output:
+- y_axis_title:
+  - If the chart label is generic (such as "Data Value"), IGNORE it
+  - If the measure describes people, rates, prevalence, or outcomes (for example "among adults", "rate", "prevalence", "received", "have"), use "Percentage"
+  - If values are mostly between 0 and 100, use "Percentage"
+  - Otherwise use "Count" or "Value"
+
+- y_axis_unit:
+  - If the chart label is generic (such as "Data Value"), IGNORE it
+  - If the data represents rates or shares of people, use "percent"
+  - If values are between 0 and 100, use "percent"
+  - Use "count" ONLY if the chart clearly shows totals (for example number of counties or number of people)
+  - Use "" only if truly unclear
+---
+
+key_values (2–3 sentences):
+- Include the highest value if clear
+- Include the lowest value if clear
+- Optionally describe the overall range
+- Do not list all categories
+
+---
+
+comparisons (1–3 sentences):
+- Compare values meaningfully
+- Do not repeat key_values
+- For grouped charts, compare bars within the same category
+
+---
+
+trends (0–2 sentences):
+- Only include if a real pattern is clearly visible
+- Do not assume left-to-right order means a trend
+
+---
+
+takeaway (1 sentence):
+- Give a short overall summary
+
+---
+
+Style rules:
+
+- Use short, clear sentences
+- Each sentence should stand alone
+- Do not repeat the same fact in multiple sections
+- Do not restate the title
+
+---
+
+Examples (for format only — do not copy values or names):
+
+Example 1 (simple bar chart):
 {
   "chart_type": "simple bar chart",
-  "title": "Top 8 counties for Received food stamps in the past 12 months among adults",
+  "title": "Example title for a simple bar chart",
   "axes": {
-    "x_axis_title": "County",
+    "x_axis_title": "Category",
     "y_axis_title": "Percentage",
     "y_axis_unit": "percent"
   },
   "key_values": [
-    "East Carroll, LA has the highest value at approximately 47 percent.",
-    "Perry, AL has the lowest value at approximately 38 percent.",
-    "Most counties fall within a narrow range between about 38 and 43 percent."
+    "Category A has the highest value at approximately 50.",
+    "Category D has the lowest value at approximately 30.",
+    "Most categories fall between about 30 and 45."
   ],
   "comparisons": [
-    "East Carroll, LA is slightly higher than the rest of the counties shown.",
-    "The gap between the highest and lowest counties is under 10 percentage points."
+    "Category A is clearly higher than the other categories.",
+    "The difference between the highest and lowest values is moderate."
   ],
   "trends": [
-    "Values decrease gradually from left to right across the counties."
+    "Values gradually decrease across the categories."
   ],
-  "takeaway": "The counties shown have fairly similar values, with East Carroll, LA modestly above the others."
+  "takeaway": "Values are relatively close overall, with one category slightly higher than the rest."
 }
 
-Example 2:
-Chart ID: 002_grouped_bar
-Chart type: grouped bar chart
-Measures: Frequent physical distress among adults | Stroke among adults
-
-Output:
+Example 2 (grouped bar chart):
 {
   "chart_type": "grouped bar chart",
-  "title": "County comparison: Frequent physical distress among adults vs Stroke among adults",
+  "title": "Example comparison between two measures",
   "axes": {
-    "x_axis_title": "County",
+    "x_axis_title": "Category",
     "y_axis_title": "Percentage",
     "y_axis_unit": "percent"
   },
   "key_values": [
-    "Oglala Lakota, SD has the highest frequent physical distress value at approximately 23 percent.",
-    "East Carroll, LA has the lowest frequent physical distress value at approximately 20 percent.",
-    "Stroke values are much lower overall, generally between about 5.5 and 7 percent."
+    "Category B has the highest value for Measure 1 at approximately 25.",
+    "Category D has the lowest value for Measure 1 at approximately 20.",
+    "Measure 2 values are lower overall, generally between about 5 and 8."
   ],
   "comparisons": [
-    "Frequent physical distress is consistently much higher than stroke across all counties shown.",
-    "Oglala Lakota, SD is among the highest counties for both measures."
+    "Measure 1 is consistently higher than Measure 2 across all categories.",
+    "Category B has relatively high values for both measures."
   ],
   "trends": [],
-  "takeaway": "Frequent physical distress is substantially higher than stroke across the counties, with only modest variation within each measure."
+  "takeaway": "One measure is consistently higher than the other, with small variation across categories."
 }
 
-Example 3:
-Chart ID: 003_stacked_bar
-Chart type: stacked bar chart
-Measure: Any disability among adults
-
-Output:
+Example 3 (stacked bar chart):
 {
   "chart_type": "stacked bar chart",
-  "title": "County distribution by Any disability among adults quartiles across states",
+  "title": "Example distribution across groups",
   "axes": {
-    "x_axis_title": "State",
-    "y_axis_title": "County count",
+    "x_axis_title": "Group",
+    "y_axis_title": "Count",
     "y_axis_unit": "count"
   },
   "key_values": [
-    "Georgia (GA) has the highest total county count at approximately 160.",
-    "Utah (UT) has the lowest total county count at approximately 30.",
-    "Mississippi (MS) and Oklahoma (OK) have large shares of counties in the highest quartile (Q4)."
+    "Group A has the highest total count at approximately 150.",
+    "Group D has the lowest total count at approximately 40.",
+    "Some groups have a larger share in the highest segment."
   ],
   "comparisons": [
-    "Georgia has substantially more counties than the other states shown.",
-    "States such as North Dakota and California appear more balanced across quartiles than Mississippi and Oklahoma."
+    "Group A has substantially more total count than the others.",
+    "Some groups are dominated by higher segments while others are more balanced."
   ],
   "trends": [],
-  "takeaway": "County totals vary widely by state, and some states have a noticeably larger concentration of counties in the highest disability quartile."
+  "takeaway": "Total counts vary across groups, with differences in how values are distributed across segments."
 }
 
-Now analyze the following chart and produce output in the same format.
+---
+
+Final check before answering:
+
+- All mentioned items appear in the chart
+- No guessing or made-up values
+- No JSON fragments inside text fields
+- All entries are full sentences
+
+Return JSON only.
