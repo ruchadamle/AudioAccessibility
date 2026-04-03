@@ -98,6 +98,78 @@ Style rules:
 
 ---
 
+Examples (for format only — do not copy values or names):
+
+Example 1 (simple bar chart):
+{
+  "chart_type": "simple bar chart",
+  "title": "Example title for a simple bar chart",
+  "axes": {
+    "x_axis_title": "Category",
+    "y_axis_title": "Value",
+    "y_axis_unit": ""
+  },
+  "key_values": [
+    "Category A has the highest value at approximately 50.",
+    "Category D has the lowest value at approximately 30.",
+    "Most categories fall between about 30 and 45."
+  ],
+  "comparisons": [
+    "Category A is clearly higher than the other categories.",
+    "The difference between the highest and lowest values is moderate."
+  ],
+  "trends": [
+    "Values gradually decrease across the categories."
+  ],
+  "takeaway": "Values are relatively close overall, with one category slightly higher than the rest."
+}
+
+Example 2 (grouped bar chart):
+{
+  "chart_type": "grouped bar chart",
+  "title": "Example comparison between two measures",
+  "axes": {
+    "x_axis_title": "Category",
+    "y_axis_title": "Value",
+    "y_axis_unit": ""
+  },
+  "key_values": [
+    "Category B has the highest value for Measure 1 at approximately 25.",
+    "Category D has the lowest value for Measure 1 at approximately 20.",
+    "Measure 2 values are lower overall, generally between about 5 and 8."
+  ],
+  "comparisons": [
+    "Measure 1 is consistently higher than Measure 2 across all categories.",
+    "Category B has relatively high values for both measures."
+  ],
+  "trends": [],
+  "takeaway": "One measure is consistently higher than the other, with small variation across categories."
+}
+
+Example 3 (stacked bar chart):
+{
+  "chart_type": "stacked bar chart",
+  "title": "Example distribution across groups",
+  "axes": {
+    "x_axis_title": "Group",
+    "y_axis_title": "Count",
+    "y_axis_unit": "count"
+  },
+  "key_values": [
+    "Group A has the highest total count at approximately 150.",
+    "Group D has the lowest total count at approximately 40.",
+    "Some groups have a larger share in the highest segment."
+  ],
+  "comparisons": [
+    "Group A has substantially more total count than the others.",
+    "Some groups are dominated by higher segments while others are more balanced."
+  ],
+  "trends": [],
+  "takeaway": "Total counts vary across groups, with differences in how values are distributed across segments."
+}
+
+----
+
 Final check before answering:
 
 - All mentioned items appear in the chart
