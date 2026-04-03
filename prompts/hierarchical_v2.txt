@@ -1,5 +1,12 @@
 You are generating a structured accessibility description of a bar chart for a blind or low-vision user.
 
+CRITICAL:
+
+Use only the data provided in the chart.
+Do not reuse example content.
+Do not hallucinate categories, states, counties, or values.
+If unsure about a value or label, omit it rather than guessing.
+
 Output raw JSON only.
 Do not wrap the JSON in Markdown.
 Do not use code fences.
@@ -8,67 +15,113 @@ Do not include any explanation before or after the JSON.
 Return valid JSON matching this exact schema:
 
 {
-  "chart_type": "",
-  "title": "",
-  "axes": {
-    "x_axis_title": "",
-    "y_axis_title": "",
-    "y_axis_unit": ""
-  },
-  "key_values": [],
-  "comparisons": [],
-  "trends": [],
-  "takeaway": ""
+"chart_type": "",
+"title": "",
+"axes": {
+"x_axis_title": "",
+"y_axis_title": "",
+"y_axis_unit": ""
+},
+"key_values": [],
+"comparisons": [],
+"trends": [],
+"takeaway": ""
 }
 
 Field requirements:
-- "chart_type": use only one of these natural labels:
-  - "simple bar chart"
-  - "grouped bar chart"
-  - "stacked bar chart"
-- "title": copy the visible chart title if present, otherwise use an empty string.
-- "axes.x_axis_title": use a human-readable x-axis label if it is visible or strongly supported by the chart. Do not blindly copy awkward text.
-- "axes.y_axis_title": use a human-readable y-axis label if it is visible or strongly supported by the chart.
-- "axes.y_axis_unit": use a human-readable unit only when it is safely inferable from the chart. Otherwise use an empty string.
-- "key_values": include 2 to 3 short factual standalone sentences that are easy to read directly in prose. When clearly identifiable and meaningful, include the highest value and the lowest value.
-- "comparisons": include 1 to 3 short factual standalone sentences that add useful relationships and do not simply repeat key_values.
-- "trends": include 0 to 2 short factual standalone sentences only if a meaningful overall pattern is visible.
-- "takeaway": include one short, natural sentence summarizing the main message without repeating the title.
+
+"chart_type": use only one of these natural labels:
+"simple bar chart"
+"grouped bar chart"
+"stacked bar chart"
+
+"title": copy the visible chart title if present, otherwise use an empty string.
+
+"axes.x_axis_title": use a human-readable x-axis label if it is visible or strongly supported by the chart. Do not blindly copy awkward text.
+
+"axes.y_axis_title": use a human-readable y-axis label if it is visible or strongly supported by the chart. If the chart clearly represents percentages or counts, prefer clear labels such as "Percentage" or "Count" instead of vague labels like "Value".
+
+"axes.y_axis_unit":
+use "percent" if percentages are clearly shown
+use "count" if totals are clearly shown
+otherwise use an empty string
+do not leave the unit undefined if it is clearly implied by the chart
+do not invent units that are not supported by the chart
+
+"key_values":
+include 2 to 3 short factual standalone sentences
+when identifying highest or lowest values, compare across ALL categories, not just adjacent bars
+do not assume the smallest value is next to the largest
+include the lowest value only if it can be confidently identified
+use approximate values only when visually supported
+
+"comparisons":
+include 1 to 3 short factual standalone sentences
+must add relationships and not repeat key_values
+for grouped charts, prioritize comparisons between measures within the same category
+
+"trends":
+include 0 to 2 short factual standalone sentences only if a meaningful overall pattern is visible
+do not assume left-to-right ordering represents a trend
+
+"takeaway":
+include one short, natural sentence summarizing the main message without repeating the title
 
 Axis guidance:
-- Prefer labels that help a human understand the chart rather than labels copied literally from the image.
-- If the chart clearly shows percentages, prefer a human-readable label such as:
-  - "Percentage"
-  - "Percent"
-  and use "percent" as the unit when appropriate.
-- If the visible y-axis label is generic, such as "Data Value", prefer a clearer interpretation only when the chart strongly supports it.
-- If the chart does not safely support a clearer interpretation, keep the label general rather than hallucinating.
-- Do not invent units that are not supported by the chart.
+
+Prefer labels that help a human understand the chart rather than labels copied literally from the image.
+If the chart clearly shows percentages, prefer a human-readable label such as:
+"Percentage"
+"Percent"
+and use "percent" as the unit when appropriate.
+If the visible y-axis label is generic, such as "Data Value", prefer a clearer interpretation only when the chart strongly supports it.
+If the chart does not safely support a clearer interpretation, keep the label general rather than hallucinating.
+Do not invent units that are not supported by the chart.
+
+Grouped chart guidance (strengthened):
+
+The primary purpose is comparison between measures within the same category.
+Always compare measures directly (e.g., which is higher and by how much if visible).
+Identify if one measure is consistently higher across categories.
+Do not treat grouped charts as separate independent bar charts.
+Do not focus on only one measure unless the other is clearly irrelevant.
 
 Stacked quartile guidance:
-- For stacked bar charts with titles like "County distribution by X quartiles across states", interpret the chart as showing how counties are distributed across quartiles of X for each state.
-- These charts show total county counts and quartile composition, not direct counts of people with the condition.
-- Describe total county counts separately from quartile composition.
-- Do not write misleading statements such as:
-  - "Mississippi has the highest count of arthritis among adults"
-- Prefer statements such as:
-  - "Georgia has the highest total county count at approximately 160"
-  - "Mississippi and Oklahoma have larger shares in the highest quartile (Q4)"
-  - "The chart shows how counties are distributed across quartiles for arthritis prevalence across states"
+
+For stacked bar charts with titles like "County distribution by X quartiles across states", interpret the chart as showing how counties are distributed across quartiles of X for each state.
+These charts show total county counts and quartile composition, not direct counts of people with the condition.
+Describe total county counts separately from quartile composition.
+Do not write misleading statements such as:
+"Mississippi has the highest count of arthritis among adults"
+Prefer statements such as:
+"Georgia has the highest total county count at approximately 160"
+"Mississippi and Oklahoma have larger shares in the highest quartile (Q4)"
+"The chart shows how counties are distributed across quartiles for arthritis prevalence across states"
+Only reference states that are explicitly present in the chart data.
 
 Writing guidance:
-- Be factual, concise, and specific.
-- Prefer approximate numeric values when exact values are not clearly labeled.
-- Use short standalone sentences that can be rendered smoothly into a readable paragraph.
-- For simple bar charts, prefer facts such as the highest category, the lowest category, and one short range or spread statement.
-- Do not enumerate every bar, rank every county, or continue counting downward after naming the most important categories.
-- Never repeat the same county or state across multiple ranked slots unless the chart truly shows ties.
-- If you mention a "second highest" or "third highest" value, make sure it is actually different from the highest item and clearly visible.
-- Avoid redundant facts across key_values, comparisons, trends, and takeaway.
-- Avoid repeating the chart title, axis labels, or the same numeric fact in multiple fields.
-- Use natural phrasing that sounds good when read aloud.
-- Do not hallucinate missing labels, values, units, or trends.
-- Output must be valid JSON only.
+
+Be factual, concise, and specific.
+Prefer approximate numeric values when exact values are not clearly labeled.
+Use short standalone sentences that can be rendered smoothly into a readable paragraph.
+For simple bar charts, prefer facts such as the highest category, the lowest category, and one short range or spread statement.
+Do not enumerate every bar, rank every county, or continue counting downward after naming the most important categories.
+Never repeat the same county or state across multiple ranked slots unless the chart truly shows ties.
+If you mention a "second highest" or "third highest" value, make sure it is actually different from the highest item and clearly visible.
+Avoid redundant facts across key_values, comparisons, trends, and takeaway.
+Avoid repeating the chart title, axis labels, or the same numeric fact in multiple fields.
+Use natural phrasing that sounds good when read aloud.
+Do not hallucinate missing labels, values, units, or trends.
+Output must be valid JSON only.
+
+Final validation (apply before output):
+
+Every category, state, or county mentioned must exist in the chart
+No example content or example states are reused
+Highest and lowest values are correctly identified using all data
+Grouped charts include measure-to-measure comparison
+Stacked charts do not misinterpret quartiles as raw values
+No invented units or labels
 
 Example 1:
 Chart ID: 001_simple_bar
@@ -152,5 +205,3 @@ Output:
   "trends": [],
   "takeaway": "County totals vary widely by state, and some states have a noticeably larger concentration of counties in the highest disability quartile."
 }
-
-Now analyze the following chart and produce output in the same format.
