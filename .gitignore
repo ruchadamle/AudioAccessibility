@@ -10,3 +10,5 @@ venv/
 # OS files
 .DS_Store
 Thumbs.db
+/examples/
+/examples/hierarchical_examples.txt

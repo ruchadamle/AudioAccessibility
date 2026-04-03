@@ -10,14 +10,16 @@ import numpy as np
 import pandas as pd
 
 
+BASE_DIR = Path(__file__).resolve().parent
+REPO_ROOT = BASE_DIR.parent
 RANDOM_SEED = 20260321
 TOTAL_CHARTS = 90
 SIMPLE_CHARTS = 36
 GROUPED_CHARTS = 27
 STACKED_CHARTS = 27
-PNG_DIR = Path("../charts/png")
-SVG_DIR = Path("../charts/svg")
-MANIFEST_PATH = Path("../manifest.csv")
+PNG_DIR = REPO_ROOT / "charts" / "png"
+SVG_DIR = REPO_ROOT / "charts" / "svg"
+MANIFEST_PATH = REPO_ROOT / "manifest.csv"
 CSV_GLOB_PATTERNS = (
     "PLACES__Local_Data_for_Better_Health,_County_Data,_*.csv",
     "places__localdata*.csv",
@@ -37,11 +39,11 @@ def sanitize_filename(value: str) -> str:
 
 
 def discover_csv_file() -> Path:
-    base_dir = Path(__file__).resolve().parent
     for pattern in CSV_GLOB_PATTERNS:
-        matches = sorted(base_dir.glob(pattern))
-        if matches:
-            return matches[0]
+        for search_dir in (BASE_DIR, REPO_ROOT):
+            matches = sorted(search_dir.glob(pattern))
+            if matches:
+                return matches[0]
     raise FileNotFoundError("Could not find the local CDC PLACES CSV file in the script directory.")
 
 
@@ -94,7 +96,7 @@ def save_figure(fig: plt.Figure, chart_id: str) -> tuple[str, str]:
     fig.savefig(svg_path, bbox_inches="tight")
     plt.close(fig)
 
-    return str(png_path.as_posix()), str(svg_path.as_posix())
+    return f"charts/png/{chart_id}.png", f"charts/svg/{chart_id}.svg"
 
 
 def generate_simple_bar(df: pd.DataFrame, rng: random.Random, chart_id: str) -> dict | None:
@@ -119,7 +121,7 @@ def generate_simple_bar(df: pd.DataFrame, rng: random.Random, chart_id: str) -> 
     ax.bar(x_positions, top_counties["Data_Value"], color="#4472C4", edgecolor="#2F528F", linewidth=0.7)
     ax.set_xticks(x_positions)
     ax.set_xticklabels(top_counties["CountyLabel"], rotation=35, ha="right")
-    ax.set_ylabel("Data Value")
+    ax.set_ylabel("Percentage")
     ax.set_xlabel("County")
     ax.set_title(wrap_title(f"Top {len(top_counties)} counties for {measure_name}"))
     ax.grid(axis="y", linestyle="--", linewidth=0.5, alpha=0.4)
@@ -201,7 +203,7 @@ def generate_grouped_bar(df: pd.DataFrame, rng: random.Random, chart_id: str) ->
     )
     ax.set_xticks(x_positions)
     ax.set_xticklabels(county_sample["CountyLabel"], rotation=35, ha="right")
-    ax.set_ylabel("Data Value")
+    ax.set_ylabel("Percentage")
     ax.set_xlabel("County")
     ax.set_title(wrap_title(f"County comparison: {measure_name_a} vs {measure_name_b}"))
     ax.grid(axis="y", linestyle="--", linewidth=0.5, alpha=0.4)
