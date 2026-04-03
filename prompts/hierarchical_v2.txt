@@ -14,8 +14,7 @@ Do NOT include things like:
 - {"state": "CA", "value": 10}
 - Any text with { } or : inside sentences
 
-Always write natural sentences like:
-"State X has a value of about 10."
+Always write natural sentences.
 
 ---
 
