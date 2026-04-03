@@ -1,44 +1,33 @@
-You are generating a structured accessibility description of a bar chart for a blind or low-vision user.
+You are describing a bar chart for a blind or low-vision user.
 
-=====================
-PRIORITY RULES (STRICT)
-=====================
+Follow these rules:
 
-1. Use only the data visible in the chart.
-2. Do not hallucinate categories, states, counties, labels, or values.
-3. If a value or label is uncertain, omit it.
-4. Output must be valid JSON only.
-5. Do not include any explanation outside the JSON.
-6. All text fields must contain natural language sentences — never raw data structures.
+- Only use information visible in the chart
+- Do not guess or add missing data
+- If something is unclear, skip it
+- Output must be valid JSON only
+- Do not write anything outside the JSON
+- All text fields must be full sentences (no raw data, no key-value formats)
 
-The output is INVALID if:
-- Any field contains JSON-like fragments, dictionaries, or key-value pairs
-- Any field includes "{", "}", ":", or quoted keys like "state", "count"
-- Any value is not supported by the chart
+Do NOT include things like:
+- {"state": "CA", "value": 10}
+- Any text with { } or : inside sentences
 
-=====================
-EXTREMA IDENTIFICATION RULES (CRITICAL)
-=====================
+Always write natural sentences like:
+"California has a value of about 10."
 
-When identifying the highest, lowest, second highest, or third highest value:
+---
 
-- Compare ALL visible categories across the entire chart before writing the answer.
-- Never assume the category next to the highest bar is the lowest bar.
-- Never infer rank from left-to-right position or adjacency.
-- Do not compare only neighboring bars.
-- Only state a highest or lowest value if it is supported by a full-chart comparison.
-- If the full ranking is unclear, omit the rank claim rather than guessing.
+Ranking rules (important):
 
-Before writing any rank claim, internally verify:
-1. Which category has the largest value in the whole chart?
-2. Which category has the smallest value in the whole chart?
-3. Are these categories confirmed by full-chart comparison?
+- Compare all bars before saying highest or lowest
+- Do not rely on left-to-right position
+- Only state highest or lowest if you are sure
+- If unsure, do not include it
 
-If not fully verified, omit the claim.
+---
 
-=====================
-OUTPUT SCHEMA
-=====================
+Output format:
 
 {
 "chart_type": "",
@@ -54,173 +43,66 @@ OUTPUT SCHEMA
 "takeaway": ""
 }
 
-=====================
-FIELD RULES
-=====================
+---
+
+Field instructions:
 
 chart_type:
-Use exactly one:
+Use one of:
 "simple bar chart"
 "grouped bar chart"
 "stacked bar chart"
 
 title:
-Copy visible title or use ""
+Copy the title if visible, otherwise ""
 
-axes.x_axis_title:
-Use a clear human-readable label if supported
+axes:
+- x_axis_title: describe what the x-axis shows
+- y_axis_title: use a clear label like "Percentage" or "Count"
+- y_axis_unit: use "percent", "count", or "" (do not guess)
 
-axes.y_axis_title:
-Use a clear label such as:
-"Percentage" or "Count" when appropriate
+---
 
-axes.y_axis_unit:
-- "percent" if percentages are shown
-- "count" if totals are shown
-- "" otherwise
-Never invent units
+key_values (2–3 sentences):
+- Include the highest value if clear
+- Include the lowest value if clear
+- Optionally describe the overall range
+- Do not list all categories
 
-=====================
-TEXT GENERATION RULES (CRITICAL)
-=====================
+---
 
-All entries in:
-- key_values
-- comparisons
-- trends
-- takeaway
-
-must be NATURAL LANGUAGE SENTENCES.
-
-NEVER output:
-- dictionaries
-- JSON fragments
-- key-value pairs
-- lists of values
-
-INVALID:
-"{'state': 'SD', 'count': 63}"
-
-VALID:
-"South Dakota (SD) has approximately 63 counties."
-
-Each sentence must:
-- Stand alone
-- Be readable aloud
-- Use natural phrasing
-- Use approximate values only when visually supported
-
-=====================
-KEY_VALUES
-=====================
-
-Include 2–3 sentences.
-
-Must include:
-- The highest value across ALL categories (if identifiable)
-- The lowest value (only if clearly identifiable)
-- Optionally one range/spread statement
-
-Rules:
-- Compare across ALL categories, not neighbors
-- Do not assume ordering
-- Do not rely on adjacent bars
-- Do not list every category
-
-=====================
-COMPARISONS
-=====================
-
-Include 1–3 sentences.
-
-Must:
-- Add relationships, not repeat key_values
+comparisons (1–3 sentences):
 - Compare values meaningfully
+- Do not repeat key_values
+- For grouped charts, compare bars within the same category
 
-For grouped charts:
-- Compare measures within the SAME category
-- Identify if one measure is consistently higher
+---
 
-=====================
-TRENDS
-=====================
+trends (0–2 sentences):
+- Only include if a real pattern is clearly visible
+- Do not assume left-to-right order means a trend
 
-Include 0–2 sentences ONLY if a real pattern exists.
+---
 
-Do NOT:
-- Assume left-to-right order implies trend
-- Invent trends
+takeaway (1 sentence):
+- Give a short overall summary
 
-=====================
-STACKED QUARTILE RULES (VERY IMPORTANT)
-=====================
+---
 
-If the chart is a stacked bar chart with quartiles:
+Style rules:
 
-Interpret as:
-Distribution of counties across quartiles for each state
-
-DO:
-- Describe total county counts separately
-- Describe quartile composition (e.g., larger share in Q4)
-
-DO NOT:
-- Treat quartiles as raw counts of people
-- Make statements about total people with a condition
-
-VALID:
-"Louisiana has the highest total county count at approximately 65."
-"Vermont has a large share of counties in the highest quartile (Q4)."
-
-=====================
-WRITING STYLE
-=====================
-
-- Be concise and factual
-- Use short standalone sentences
-- Avoid repetition across fields
+- Use short, clear sentences
+- Each sentence should stand alone
+- Do not repeat the same fact in multiple sections
 - Do not restate the title
-- Do not reuse the same fact in multiple fields
-- Do not rank beyond what is clearly visible
 
-=====================
-FINAL VALIDATION
-=====================
+---
 
-Before output:
+Final check before answering:
 
-- Every entity mentioned exists in the chart
-- Highest and lowest are correct across ALL data
-- No hallucinated values
+- All mentioned items appear in the chart
+- No guessing or made-up values
 - No JSON fragments inside text fields
-- Grouped charts include measure-to-measure comparison
-- Stacked charts correctly interpret quartiles
-
-TEXT REALIZATION REQUIREMENT (MANDATORY)
-
-All items in "key_values", "comparisons", "trends", and "takeaway" must be fully written natural-language sentences.
-
-You must convert all data into sentences.
-
-If any item contains:
-- "{"
-- "}"
-- ":"
-- key names such as "state", "count", "value"
-
-then the output is INVALID and must be rewritten before returning.
-
-You are required to rewrite raw data into sentences.
-
-Example transformation rule:
-
-Input data:
-state = SD, count = 63
-
-Required output:
-"South Dakota (SD) has approximately 63 counties."
-
-Do not return raw data under any circumstances.
-- Any rank claim is based on full-chart comparison, not adjacency
+- All entries are full sentences
 
 Return JSON only.
