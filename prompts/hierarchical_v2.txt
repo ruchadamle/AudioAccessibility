@@ -146,7 +146,12 @@ Examples of good descriptions:
 - "State X has a large share of counties in the highest quartile (Q4)."
 - "State Y is more evenly distributed across all quartiles."
 - "State Z has a higher concentration in the lower quartiles (Q1 and Q2)."
-
+Never use placeholder names such as "State X", "Category A", or similar.
+Only use real category names that appear in the chart.
+If you are not confident in the category name, do not include the name.
+If unsure about a category name:
+- You may describe the pattern without naming the category
+- Example: "One state has a large share in the highest quartile"
 ---
 
 Examples (for format only — do not copy values or names):
