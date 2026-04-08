@@ -1,192 +1,161 @@
-The goal is to produce a clear, concise description that is helpful when read aloud to a blind or low-vision user. Focus on the most important information, not every detail.
+The goal is to produce a clear, concise description that is helpful when read aloud to a blind or low-vision user. The description should communicate the same key insight a sighted person would get from a quick glance.
 
-Follow these rules:
+Always prioritize the most important information first.
 
+CORE RULES
 - Only use information visible in the chart
 - Do not guess or add missing data
 - If something is unclear, skip it
 - Output must be valid JSON only
 - Do not write anything outside the JSON
 - All text fields must be full sentences (no raw data, no key-value formats)
-- For stacked bar charts, prioritize describing how values are distributed across segments (such as quartiles), not just total counts
+- Prioritize meaning over visual layout details
+- Avoid unnecessary mentions of axes unless needed for understanding
 
-Do NOT include things like:
+CRITICAL PRIORITY RULE (MOST IMPORTANT)
+- The first sentence in key_values MUST state the most important insight, pattern, or contrast in the chart
+- Do NOT start with general setup or descriptions
+- Start with what matters most
+
+Bad example:
+- "This chart shows..."
+
+Good example:
+- "West Virginia has a much higher share of counties in the highest quartile than other states."
+
+CHART-TYPE PRIORITIES (VERY IMPORTANT)
+- You must adapt your description based on chart type:
+
+Simple bar chart:
+- Focus on highest, lowest, and overall spread
+- Emphasize magnitude differences
+
+Grouped bar chart:
+- Focus on comparisons within the same category
+- Highlight consistent differences between groups
+
+Stacked bar chart:
+- Focus on how each bar is divided across segments
+- Identify categories dominated by higher or lower segments
+- Identify categories that are more balanced across segments
+- Only mention total bar height if it adds meaningful context
+- Do NOT prioritize total counts over segment composition
+
+DO NOT INCLUDE
 - {"state": "CA", "value": 10}
 - Any text with { } or : inside sentences
+- Always write natural sentences
 
-Always write natural sentences.
-
----
-
-Ranking rules (important):
-
-- Compare all bars before saying highest or lowest
+RANKING RULES (IMPORTANT)
+- Compare all relevant categories before stating highest or lowest
 - Do not rely on left-to-right position
 - Do not rely on neighboring labels
-- Only state highest or lowest if the bar and its label can be matched with confidence
-- If you are not confident about the category name for the lowest or highest value, do not include the category name
+- Only state highest or lowest if the category label can be matched with confidence
+- If unsure, describe relative differences without naming extremes
 
----
+OUTPUT FORMAT
+- {
+- "chart_type": "",
+- "title": "",
+- "axes": {
+- "x_axis_title": "",
+- "y_axis_title": "",
+- "y_axis_unit": ""
+- },
+- "key_values": [],
+- "comparisons": [],
+- "trends": [],
+- "takeaway": ""
+- }
 
-Output format:
-
-{
-"chart_type": "",
-"title": "",
-"axes": {
-"x_axis_title": "",
-"y_axis_title": "",
-"y_axis_unit": ""
-},
-"key_values": [],
-"comparisons": [],
-"trends": [],
-"takeaway": ""
-}
-
----
-
-Field instructions:
+FIELD INSTRUCTIONS
 
 chart_type:
-Use one of:
-"simple bar chart"
-"grouped bar chart"
-"stacked bar chart"
+- Use one of:
+- "simple bar chart"
+- "grouped bar chart"
+- "stacked bar chart"
 
 title:
-Copy the title if visible, otherwise ""
+- Copy the title if visible, otherwise ""
 
 axes:
-- x_axis_title: describe what the x-axis shows
-
+- x_axis_title: Briefly describe what the x-axis represents
 - y_axis_title:
-  - If the chart label is generic (such as "Data Value"), IGNORE it
-  - If the measure describes people, rates, prevalence, or outcomes (for example "among adults", "rate", "prevalence", "received", "have"), use "Percentage"
-  - If values are mostly between 0 and 100, use "Percentage"
-  - Otherwise use "Count" or "Value"
-
+- If the label is generic, ignore it
+- If the data represents rates, prevalence, or percentages, use "Percentage"
+- If values represent totals, use "Count" or "Value"
 - y_axis_unit:
-  - If the chart label is generic (such as "Data Value"), IGNORE it
-  - If the data represents rates or shares of people, use "percent"
-  - If values are between 0 and 100, use "percent"
-  - Use "count" ONLY if the chart clearly shows totals (for example number of counties or number of people)
-  - Use "" only if truly unclear
----
+- Use "percent" for rates or values between 0 and 100
+- Use "count" for totals (such as number of counties)
+- Use "" only if unclear
 
-key_values (2–3 sentences):
-- Include the highest value if clear
-- Include the lowest value if clear
-- Optionally describe the overall range
-- Do not list all categories
+key_values (2–3 sentences)
+- This section contains the MOST IMPORTANT information
+- The FIRST sentence must state the main insight or strongest contrast
+- Do NOT begin with general chart descriptions
 
----
+By chart type:
 
-comparisons (1–3 sentences):
-- Compare values meaningfully
-- Do not repeat key_values
-- For grouped charts, compare bars within the same category
+Simple bar chart:
+- Include highest and lowest if clear
+- Describe overall range or spread
 
----
+Grouped bar chart:
+- Highlight which group tends to be higher
+- Identify any standout category differences
 
-trends (0–2 sentences):
+Stacked bar chart:
+- Describe how values are distributed across segments
+- Identify categories concentrated in higher or lower segments
+- Identify categories that are relatively balanced
+- Focus on composition, not totals
+
+comparisons (1–3 sentences)
+- Provide meaningful comparisons that add new information
+- Do NOT repeat key_values
+
+By chart type:
+
+Simple bar chart:
+- Compare largest vs smallest and overall differences
+
+Grouped bar chart:
+- Compare groups within the same category
+- Note consistent patterns across categories
+
+Stacked bar chart:
+- Compare how distributions differ across categories
+- Highlight strong contrasts in segment composition
+
+trends (0–2 sentences)
 - Only include if a real pattern is clearly visible
-- Do not assume left-to-right order means a trend
+- Do not assume left-to-right order implies a trend
 
----
+Valid trends:
+- Gradual increase or decrease
+- Consistent dominance of one group
+- Repeating distribution patterns
 
-takeaway (1 sentence):
-- Give a short overall summary
+- If no clear trend exists, leave empty
 
----
+takeaway (1 sentence)
+- Summarize the single most important insight
+- Focus on meaning, not structure
+- Do not restate the title
+- Avoid repeating full sentences from earlier sections
 
-Style rules:
-
+STYLE RULES
 - Use short, clear sentences
 - Each sentence should stand alone
-- Do not repeat the same fact in multiple sections
-- Do not restate the title
+- Avoid filler phrases
+- Avoid repeating the same idea across sections
+- Prefer concrete comparisons over vague statements
+- Use specific category names when confident
 
----
-
-Examples (for format only, do not copy values, names, or phrasing):
-
-Example 1 (simple bar chart):
-{
-  "chart_type": "simple bar chart",
-  "title": "Example title for a simple bar chart",
-  "axes": {
-    "x_axis_title": "Category",
-    "y_axis_title": "Percentage",
-    "y_axis_unit": "percent"
-  },
-  "key_values": [
-    "Category A has the highest value at approximately 50.",
-    "Category D has the lowest value at approximately 30.",
-    "Most categories fall between about 30 and 45."
-  ],
-  "comparisons": [
-    "Category A is clearly higher than the other categories.",
-    "The difference between the highest and lowest values is moderate."
-  ],
-  "trends": [
-    "Values gradually decrease across the categories."
-  ],
-  "takeaway": "Values are relatively close overall, with one category slightly higher than the rest."
-}
-
-Example 2 (grouped bar chart):
-{
-  "chart_type": "grouped bar chart",
-  "title": "Example comparison between two measures",
-  "axes": {
-    "x_axis_title": "Category",
-    "y_axis_title": "Percentage",
-    "y_axis_unit": "percent"
-  },
-  "key_values": [
-    "Category B has the highest value for Measure 1 at approximately 25.",
-    "Category D has the lowest value for Measure 1 at approximately 20.",
-    "Measure 2 values are lower overall, generally between about 5 and 8."
-  ],
-  "comparisons": [
-    "Measure 1 is consistently higher than Measure 2 across all categories.",
-    "Category B has relatively high values for both measures."
-  ],
-  "trends": [],
-  "takeaway": "One measure is consistently higher than the other, with small variation across categories."
-}
-
-Example 3 (stacked bar chart):
-{
-  "chart_type": "stacked bar chart",
-  "title": "Example distribution across groups",
-  "axes": {
-    "x_axis_title": "Group",
-    "y_axis_title": "Count",
-    "y_axis_unit": "count"
-  },
-  "key_values": [
-    "Group A has a large share of its total in the highest segment, indicating many values in the top quartile.",
-    "Group B is more evenly distributed across all segments, with no single segment dominating.",
-    "Group D has a greater concentration in the lower segments, indicating more values in the lower quartiles."
-  ],
-  "comparisons": [
-    "Group A has a much higher proportion in the top segment compared to the other groups.",
-    "Group D contrasts with Group A by having more of its total in the lower segments rather than the higher ones.",
-    "Group B appears more balanced across segments than both Group A and Group D."
-  ],
-  "trends": [],
-  "takeaway": "The groups differ mainly in how their values are distributed across segments, with some concentrated in higher segments and others in lower ones."
-}
-
----
-
-Final check before answering:
-
+FINAL CHECK BEFORE ANSWERING
+- The most important insight appears in the FIRST sentence of key_values
 - All mentioned items appear in the chart
 - No guessing or made-up values
 - No JSON fragments inside text fields
 - All entries are full sentences
-
-Return JSON only.
